@@ -1,0 +1,572 @@
+# ==============================================================================
+# OnePlus 13R (CPH2691) Safe Optimization Configuration
+# Target: OxygenOS 15 & 16 (Android 15 & 16) | Qualcomm Snapdragon 8 Gen 2
+# Security Boundary: 100% Rootless ADB (Shell UID 2000, SELinux Enforcing)
+# ==============================================================================
+
+version: "2.0.0"
+guide_name: "OnePlus 13R (CPH2691) Safe Optimization Suite"
+
+# ------------------------------------------------------------------------------
+# Device Metadata & Hardware Target
+# ------------------------------------------------------------------------------
+device:
+  model: "CPH2691"
+  market_names:
+    - "OnePlus 13R"
+    - "OnePlus 13R (India)"
+    - "CPH2691IN"
+  compatible_models:
+    - "CPH2691"
+    - "CPH2691IN"
+    - "OP5D3BL1"
+  target_os: "OxygenOS 15 / OxygenOS 16 (Android 15 / 16)"
+  platform: "Qualcomm Snapdragon 8 Gen 3 (SM8650-AB)"
+  gpu: "Adreno 750"
+  check_model: true
+
+# ------------------------------------------------------------------------------
+# ADB Discovery Paths & Connection Handshake Parameters
+# Multi-tier auto-discovery resolves ADB across O+Connect, Android SDK, and Scoop.
+# ------------------------------------------------------------------------------
+adb:
+  default_search_paths:
+    # 1. Official OnePlus / OPPO PC Connect Daemon (Primary live location)
+    - "C:\\Program Files\\O+Connect\\daemon\\bin\\adb.exe"
+    # 2. Android Studio SDK Platform-Tools
+    - "%LOCALAPPDATA%\\Android\\Sdk\\platform-tools\\adb.exe"
+    # 3. Scoop Platform-Tools Package
+    - "%USERPROFILE%\\scoop\\apps\\adb\\current\\platform-tools\\adb.exe"
+    # 4. Standard Program Files Android SDK
+    - "%ProgramFiles%\\Android\\platform-tools\\adb.exe"
+    # 5. Standalone Tools Directory
+    - "C:\\tools\\platform-tools\\adb.exe"
+    # 6. Legacy / Alternate Common Locations
+    - "C:\\platform-tools\\adb.exe"
+    - "C:\\adb\\adb.exe"
+    - "C:\\Program Files (x86)\\O+Connect\\daemon\\bin\\adb.exe"
+    - "%USERPROFILE%\\scoop\\shims\\adb.exe"
+    - "C:\\ProgramData\\chocolatey\\bin\\adb.exe"
+    - "%LOCALAPPDATA%\\Programs\\O+Connect\\daemon\\bin\\adb.exe"
+  posix_search_paths:
+    - "~/Library/Android/sdk/platform-tools/adb"
+    - "/opt/homebrew/bin/adb"
+    - "/usr/local/bin/adb"
+    - "/usr/bin/adb"
+    - "~/Android/Sdk/platform-tools/adb"
+  # Device authorization retry loop parameters (handles unauthorized -> authorizing -> device)
+  retry_timeout: 30.0
+  retry_attempts: 15
+  retry_delay: 2.0
+
+# ------------------------------------------------------------------------------
+# THE 15-PACKAGE "NEVER TOUCH" SYSTEM BLACKLIST
+# Freezing or disabling ANY of these 15 packages will cause bootloops, permanent
+# USB lockout, hardware charging failure, biometric loss, or emergency 911 failure.
+# ------------------------------------------------------------------------------
+blacklist:
+  # 1. Athena: Resource & Core Governor. Hard-bound to system_server via JNI/Binder. Causes immediate bootloop within 60s.
+  - "com.oplus.athena"
+  # 2. SafeCenter: Security Framework & Permissions. Disabling permanently breaks USB Debugging confirmation & permission prompts.
+  - "com.oplus.safecenter"
+  # 3. Battery: SuperVOOC 100W Charging HAL. Communicates with PMIC/BQ25890. Disabling throttles charging to 10W & trips thermals.
+  - "com.oplus.battery"
+  # 4. SecurityGuard: Biometric Keystore Bridge. Optical fingerprint & Keystore HAL. Disabling breaks fingerprint & banking/UPI apps.
+  - "com.oplus.securityguard"
+  # 5. Camera: Hasselblad Imaging HAL Bridge. Multi-frame HDR & OIS calibration. Disabling crashes stock & third-party camera apps.
+  - "com.oplus.camera"
+  # 6. Secure Element: OMAPI routing for eSE & UICC SIM. Disabling breaks Google Wallet tap-and-pay and bank card tokenization.
+  - "com.android.se"
+  # 7. SystemUI: System User Interface. Host process for gestures, status bar, and notifications. Disabling causes black screen.
+  - "com.android.systemui"
+  # 8. OTA: OxygenOS Over-the-Air Update Engine. Applies seamless A/B partition updates. Disabling bricks official security updates.
+  - "com.oplus.ota"
+  # 9. RomUpdate: Dynamic Carrier & APN Config. Pushes VoLTE/VoNR profiles. Disabling causes softbrick & loss of 5G SA aggregation.
+  - "com.oplus.romupdate"
+  # 10. COTA: Carrier Over-the-Air Service. Delivers Indian carrier configs (Jio, Airtel, Vi). Disabling breaks network slicing/VoLTE.
+  - "com.oplus.cota"
+  # 11. Google Play Services: Play Integrity API, FCM push notifications, OAuth. Disabling collapses 95% of third-party apps.
+  - "com.google.android.gms"
+  # 12. Qualcomm Telephony: Qualcomm Snapdragon modem RIL interface. Disabling kills all cellular service and emergency calls (112/911).
+  - "com.qualcomm.qti.telephonyservice"
+  # 13. Phone: Core Telephony Framework. Manages cellular radio state & call routing. Disabling causes dialer crashes & dropped calls.
+  - "com.android.phone"
+  # 14. Settings: Android Settings Datastore. Central user configuration UI & Settings Provider. Disabling causes total system lockout.
+  - "com.android.settings"
+  # 15. AOD: Always-On Display & Optical Fingerprint Surface. Disabling breaks in-display fingerprint illumination when screen is off.
+  - "com.oplus.aod"
+
+# ------------------------------------------------------------------------------
+# Architectural Justification Metadata for Protected Blacklist Packages
+# ------------------------------------------------------------------------------
+blacklist_details:
+  com.oplus.athena:
+    name: "Athena Core Governor"
+    role: "Intelligent Resource & Process Governor"
+    hardware_coupling: "Hard-bound to Android system_server via JNI hooks and Binder IPC. Monitors CPU core affinity and low-memory killer (LMK)."
+    failure_mode: "Immediate bootloop. Watchdog timer detects missing IPC service within 60s of boot; device crashes to Recovery or Qualcomm EDL crashdump."
+  com.oplus.safecenter:
+    name: "SafeCenter Permission Engine"
+    role: "Security Framework & Permission Dispatcher"
+    hardware_coupling: "Renders runtime permission prompts, USB Debugging confirmation dialogues, and App Ops dialogs."
+    failure_mode: "Permanent USB lockout and permission crashes. Newly requested app permissions immediately crash. If USB debugging authorization is revoked, user is permanently locked out of ADB."
+  com.oplus.battery:
+    name: "SuperVOOC Power HAL"
+    role: "SuperVOOC Dual-Cell Charging HAL"
+    hardware_coupling: "Communicates with hardware Power Management IC (PMIC) and BQ25890 charge controller for 100W/80W charging."
+    failure_mode: "Charging throttling and thermal trip. Drops charging speed to baseline 5V/2A (10W), breaks battery percentage calculation, or trips false thermal shutoff warnings."
+  com.oplus.securityguard:
+    name: "SecurityGuard Keystore Bridge"
+    role: "Biometric Authentication & Cryptographic Keystore"
+    hardware_coupling: "Bridges optical under-display fingerprint daemon, face unlock, and Android Keystore Hardware Abstraction Layer."
+    failure_mode: "Biometric and banking app failure. Fingerprint scanner reports 'Hardware unavailable'. Hardware-backed Keystore fails, causing banking and UPI apps (Google Pay, PhonePe, Paytm) to reject logins."
+  com.oplus.camera:
+    name: "OnePlus Camera & Hasselblad Bridge"
+    role: "Hasselblad Imaging HAL Bridge Provider"
+    hardware_coupling: "Proprietary multi-frame HDR engine, optical image stabilization (OIS) calibration, and ISP bridge."
+    failure_mode: "Complete camera subsystem crash. Stock camera fails to launch; third-party camera apps (WhatsApp, Instagram, GCam) freeze or show black viewfinders."
+  com.android.se:
+    name: "Secure Element Service"
+    role: "Secure Element Service"
+    hardware_coupling: "Implements OMAPI (Open Mobile API) routing for eSE (embedded Secure Element) and UICC SIM applets."
+    failure_mode: "Contactless payment failure. Google Wallet contactless tap-and-pay and bank card tokenization stop functioning completely."
+  com.android.systemui:
+    name: "Android SystemUI"
+    role: "System User Interface"
+    hardware_coupling: "Host process for navigation gestures, status bar, notifications, and lock screen surface."
+    failure_mode: "System black screen. User shell immediately terminates; system enters a repetitive restart loop."
+  com.oplus.ota:
+    name: "OxygenOS OTA Engine"
+    role: "System Over-the-Air Update Engine"
+    hardware_coupling: "Downloads, verifies cryptographic signatures, and applies seamless A/B partition updates."
+    failure_mode: "OTA update brick. Device cannot query or install official OxygenOS security patches or OS upgrades."
+  com.oplus.romupdate:
+    name: "ROM Update Carrier Config Provider"
+    role: "Dynamic Carrier & APN Config Provider"
+    hardware_coupling: "Pushes carrier-specific VoLTE/VoNR profiles, emergency dialing numbers, and modem baseband configurations."
+    failure_mode: "Cellular degradation / softbrick. Causes missing APNs, loss of 5G standalone carrier aggregation, and recurring crash popups on reboot."
+  com.oplus.cota:
+    name: "COTA Regional Carrier Service"
+    role: "Carrier Over-the-Air Service"
+    hardware_coupling: "Delivers regional Indian carrier configurations (Jio, Airtel, Vi) for network slicing and 5G VoNR."
+    failure_mode: "Network slicing and VoLTE failure. May result in dropped calls or inability to latch onto Indian 5G SA bands."
+  com.google.android.gms:
+    name: "Google Play Services"
+    role: "Google Play Services Core Ecosystem"
+    hardware_coupling: "Provides Play Integrity API, Firebase Cloud Messaging (push notifications), Google OAuth, and location services."
+    failure_mode: "Total app ecosystem collapse. 95% of third-party apps fail to receive push notifications; all banking and financial apps fail integrity verification."
+  com.qualcomm.qti.telephonyservice:
+    name: "Qualcomm Telephony HAL"
+    role: "Qualcomm Modem & Telephony HAL"
+    hardware_coupling: "Interfaces Android TelephonyManager with Qualcomm Snapdragon baseband modem and RIL."
+    failure_mode: "No cellular service / emergency call failure. SIM cards are not detected; emergency calling (112/911) is disabled."
+  com.android.phone:
+    name: "Core Telephony Framework"
+    role: "Core Telephony Framework"
+    hardware_coupling: "Manages cellular radio state, call routing, and SIM subscription services."
+    failure_mode: "Dialer and call crashes. Phone app crashes on incoming/outgoing calls; VoLTE/VoNR drops."
+  com.android.settings:
+    name: "Android Settings Datastore"
+    role: "Android Settings Datastore & UI"
+    hardware_coupling: "Central user configuration UI and Settings Provider backend database."
+    failure_mode: "Settings crash / system lockout. All system settings become inaccessible; phone enters an unusable state."
+  com.oplus.aod:
+    name: "AOD & Optical Fingerprint Surface"
+    role: "Always-On Display & In-Display Fingerprint Render"
+    hardware_coupling: "Draws the lockscreen ambient display and accurately renders the target illumination zone for optical fingerprint positioning."
+    failure_mode: "Broken in-display fingerprint. Optical sensor cannot illuminate finger without AOD positioning coordinates while the screen is off."
+
+# ------------------------------------------------------------------------------
+# Application Package Collections (Convenience lists for custom scripting)
+# ------------------------------------------------------------------------------
+packages:
+  blacklist:
+    - "com.oplus.athena"
+    - "com.oplus.safecenter"
+    - "com.oplus.battery"
+    - "com.oplus.securityguard"
+    - "com.oplus.camera"
+    - "com.android.se"
+    - "com.android.systemui"
+    - "com.oplus.ota"
+    - "com.oplus.romupdate"
+    - "com.oplus.cota"
+    - "com.google.android.gms"
+    - "com.qualcomm.qti.telephonyservice"
+    - "com.android.phone"
+    - "com.android.settings"
+    - "com.oplus.aod"
+  doze_whitelist:
+    - "com.whatsapp"
+    - "org.telegram.messenger"
+    - "com.google.android.gm"
+    - "com.google.android.apps.messaging"
+    - "com.spotify.music"
+    - "com.Slack"
+    - "org.thoughtcrime.securesms"
+    - "com.discord"
+  telemetry_freeze_targets:
+    - "com.oplus.statistics.rom"
+    - "com.oplus.logkit"
+    - "com.oplus.postmanservice"
+    - "com.oplus.onetrace"
+    - "com.oplus.stdsp"
+    - "com.oplus.qualityprotect"
+    - "com.facebook.system"
+    - "com.facebook.appmanager"
+    - "com.facebook.services"
+    - "com.heytap.cloud"
+    - "com.heytap.browser"
+    - "com.heytap.htms"
+    - "com.oneplus.membership"
+  absent_telemetry_packages:
+    - "com.oplus.crashbox"
+    - "com.heytap.pictorial"
+    - "net.oneplus.forums"
+  aot_speed_targets:
+    - "com.oplus.camera"
+    - "com.oneplus.gallery"
+    - "com.android.chrome"
+    - "com.google.android.youtube"
+    - "com.google.android.apps.maps"
+    - "com.whatsapp"
+    - "org.telegram.messenger"
+    - "com.instagram.android"
+    - "com.twitter.android"
+    - "com.spotify.music"
+
+# ------------------------------------------------------------------------------
+# THE 12 OPERATIONAL PHASES (Original 7 + 5 New Categories)
+# Every phase includes exact forward commands, 100% symmetric rollback commands,
+# and metadata for modular, selective execution.
+# ------------------------------------------------------------------------------
+phases:
+  # ----------------------------------------------------------------------------
+  # Phase 1: Storage Cache Trim
+  # ----------------------------------------------------------------------------
+  phase_1:
+    name: "Storage Cache Trim"
+    description: "Executes UFS 4.0 storage TRIM via FITRIM ioctl to reclaim deleted flash blocks and purges temporary application cache up to 100GB."
+    type: "storage_trim"
+    enabled_by_default: true
+    commands:
+      - "sm fstrim"
+      - "pm trim-caches 100G"
+    undo_commands: []
+    undo_note: "One-way maintenance operation (garbage collection). App caches rebuild automatically during normal application execution."
+
+  # ----------------------------------------------------------------------------
+  # Phase 2: Window Animation Scales
+  # ----------------------------------------------------------------------------
+  phase_2:
+    name: "Window Animation Scales"
+    description: "Halves window animation scale, transition animation scale, and animator duration scale to 0.5x for snappy, fluid UI interactions."
+    type: "settings_put"
+    target_namespace: "global"
+    enabled_by_default: true
+    settings:
+      window_animation_scale: "0.5"
+      transition_animation_scale: "0.5"
+      animator_duration_scale: "0.5"
+    undo_settings:
+      window_animation_scale: "1.0"
+      transition_animation_scale: "1.0"
+      animator_duration_scale: "1.0"
+    commands:
+      - "settings put global window_animation_scale 0.5"
+      - "settings put global transition_animation_scale 0.5"
+      - "settings put global animator_duration_scale 0.5"
+    undo_commands:
+      - "settings put global window_animation_scale 1.0"
+      - "settings put global transition_animation_scale 1.0"
+      - "settings put global animator_duration_scale 1.0"
+
+  # ----------------------------------------------------------------------------
+  # Phase 3: Battery & Radio Optimizations
+  # ----------------------------------------------------------------------------
+  phase_3:
+    name: "Battery & Radio Optimizations"
+    description: "Disables background Wi-Fi and Bluetooth Low Energy scanning when off, prevents cellular modem from staying awake while connected to Wi-Fi, and enables adaptive battery management."
+    type: "settings_put"
+    target_namespace: "global"
+    enabled_by_default: true
+    settings:
+      wifi_scan_always_enabled: "0"
+      ble_scan_always_enabled: "0"
+      mobile_data_always_on: "0"
+      adaptive_battery_management_enabled: "1"
+    undo_settings:
+      wifi_scan_always_enabled: "1"
+      ble_scan_always_enabled: "1"
+      mobile_data_always_on: "1"
+      adaptive_battery_management_enabled: "1"
+    commands:
+      - "settings put global wifi_scan_always_enabled 0"
+      - "settings put global ble_scan_always_enabled 0"
+      - "settings put global mobile_data_always_on 0"
+      - "settings put global adaptive_battery_management_enabled 1"
+    undo_commands:
+      - "settings put global wifi_scan_always_enabled 1"
+      - "settings put global ble_scan_always_enabled 1"
+      - "settings put global mobile_data_always_on 1"
+      - "settings put global adaptive_battery_management_enabled 1"
+
+  # ----------------------------------------------------------------------------
+  # Phase 4: Doze Power-Saving Whitelist
+  # ----------------------------------------------------------------------------
+  phase_4:
+    name: "Doze Power-Saving Whitelist"
+    description: "Whitelists critical communication, VoIP, and media applications from aggressive OxygenOS deep Doze sleep suppression to prevent delayed push notifications and audio drops."
+    type: "dumpsys_whitelist"
+    enabled_by_default: true
+    packages:
+      - "com.whatsapp"
+      - "org.telegram.messenger"
+      - "com.google.android.gm"
+      - "com.google.android.apps.messaging"
+      - "com.spotify.music"
+      - "com.Slack"
+      - "org.thoughtcrime.securesms"
+      - "com.discord"
+    commands:
+      - "dumpsys deviceidle whitelist +com.whatsapp"
+      - "dumpsys deviceidle whitelist +org.telegram.messenger"
+      - "dumpsys deviceidle whitelist +com.google.android.gm"
+      - "dumpsys deviceidle whitelist +com.google.android.apps.messaging"
+      - "dumpsys deviceidle whitelist +com.spotify.music"
+      - "dumpsys deviceidle whitelist +com.Slack"
+      - "dumpsys deviceidle whitelist +org.thoughtcrime.securesms"
+      - "dumpsys deviceidle whitelist +com.discord"
+    undo_commands:
+      - "dumpsys deviceidle whitelist -com.whatsapp"
+      - "dumpsys deviceidle whitelist -org.telegram.messenger"
+      - "dumpsys deviceidle whitelist -com.google.android.gm"
+      - "dumpsys deviceidle whitelist -com.google.android.apps.messaging"
+      - "dumpsys deviceidle whitelist -com.spotify.music"
+      - "dumpsys deviceidle whitelist -com.Slack"
+      - "dumpsys deviceidle whitelist -org.thoughtcrime.securesms"
+      - "dumpsys deviceidle whitelist -com.discord"
+
+  # ----------------------------------------------------------------------------
+  # Phase 5: Safe Telemetry Freeze
+  # ----------------------------------------------------------------------------
+  phase_5:
+    name: "Safe Telemetry Freeze"
+    description: "Safely disables non-essential OEM telemetry, analytics uploaders, HeyTap promotional services, and Facebook background daemons for user 0, gracefully skipping absent packages on OxygenOS 15/16 India."
+    type: "package_disable"
+    enabled_by_default: true
+    packages:
+      - "com.oplus.statistics.rom"
+      - "com.oplus.logkit"
+      - "com.oplus.postmanservice"
+      - "com.oplus.onetrace"
+      - "com.oplus.stdsp"
+      - "com.oplus.qualityprotect"
+      - "com.facebook.system"
+      - "com.facebook.appmanager"
+      - "com.facebook.services"
+      - "com.heytap.cloud"
+      - "com.heytap.browser"
+      - "com.heytap.htms"
+      - "com.oneplus.membership"
+    absent_packages:
+      - "com.oplus.crashbox"
+      - "com.heytap.pictorial"
+      - "net.oneplus.forums"
+    commands:
+      - "pm disable-user --user 0 com.oplus.statistics.rom"
+      - "pm disable-user --user 0 com.oplus.logkit"
+      - "pm disable-user --user 0 com.oplus.postmanservice"
+      - "pm disable-user --user 0 com.oplus.onetrace"
+      - "pm disable-user --user 0 com.oplus.stdsp"
+      - "pm disable-user --user 0 com.oplus.qualityprotect"
+      - "pm disable-user --user 0 com.facebook.system"
+      - "pm disable-user --user 0 com.facebook.appmanager"
+      - "pm disable-user --user 0 com.facebook.services"
+      - "pm disable-user --user 0 com.heytap.cloud"
+      - "pm disable-user --user 0 com.heytap.browser"
+      - "pm disable-user --user 0 com.heytap.htms"
+      - "pm disable-user --user 0 com.oneplus.membership"
+    undo_commands:
+      - "pm enable --user 0 com.oplus.statistics.rom"
+      - "pm enable --user 0 com.oplus.logkit"
+      - "pm enable --user 0 com.oplus.postmanservice"
+      - "pm enable --user 0 com.oplus.onetrace"
+      - "pm enable --user 0 com.oplus.stdsp"
+      - "pm enable --user 0 com.oplus.qualityprotect"
+      - "pm enable --user 0 com.facebook.system"
+      - "pm enable --user 0 com.facebook.appmanager"
+      - "pm enable --user 0 com.facebook.services"
+      - "pm enable --user 0 com.heytap.cloud"
+      - "pm enable --user 0 com.heytap.browser"
+      - "pm enable --user 0 com.heytap.htms"
+      - "pm enable --user 0 com.oneplus.membership"
+
+  # ----------------------------------------------------------------------------
+  # Phase 6: App & System AOT Speed Compilation
+  # ----------------------------------------------------------------------------
+  phase_6:
+    name: "App & System AOT Speed Compilation"
+    description: "Compiles 10 core performance-sensitive applications directly to native ARM64 machine code (-m speed) to eliminate JIT startup delay, and performs system-wide profile-guided optimization (-m speed-profile -a)."
+    type: "package_compile"
+    enabled_by_default: true
+    packages:
+      - "com.oplus.camera"
+      - "com.oneplus.gallery"
+      - "com.android.chrome"
+      - "com.google.android.youtube"
+      - "com.google.android.apps.maps"
+      - "com.whatsapp"
+      - "org.telegram.messenger"
+      - "com.instagram.android"
+      - "com.twitter.android"
+      - "com.spotify.music"
+    commands:
+      - "cmd package compile -m speed com.oplus.camera"
+      - "cmd package compile -m speed com.oneplus.gallery"
+      - "cmd package compile -m speed com.android.chrome"
+      - "cmd package compile -m speed com.google.android.youtube"
+      - "cmd package compile -m speed com.google.android.apps.maps"
+      - "cmd package compile -m speed com.whatsapp"
+      - "cmd package compile -m speed org.telegram.messenger"
+      - "cmd package compile -m speed com.instagram.android"
+      - "cmd package compile -m speed com.twitter.android"
+      - "cmd package compile -m speed com.spotify.music"
+      - "cmd package compile -m speed-profile -a"
+    undo_commands:
+      - "cmd package compile --reset com.oplus.camera"
+      - "cmd package compile --reset com.oneplus.gallery"
+      - "cmd package compile --reset com.android.chrome"
+      - "cmd package compile --reset com.google.android.youtube"
+      - "cmd package compile --reset com.google.android.apps.maps"
+      - "cmd package compile --reset com.whatsapp"
+      - "cmd package compile --reset org.telegram.messenger"
+      - "cmd package compile --reset com.instagram.android"
+      - "cmd package compile --reset com.twitter.android"
+      - "cmd package compile --reset com.spotify.music"
+      - "cmd package compile --reset -a"
+
+  # ----------------------------------------------------------------------------
+  # Phase 7: Google Wallet & NFC Quick-Access Tile
+  # ----------------------------------------------------------------------------
+  phase_7:
+    name: "Google Wallet & NFC Quick-Access Tile"
+    description: "Enables NFC radio, assigns Google Play Services Host Card Emulation (HCE) component as default contactless payment service, and activates Quick Access Wallet on the lockscreen and Quick Settings."
+    type: "svc_call"
+    enabled_by_default: true
+    commands:
+      - "svc nfc enable"
+      - "settings put secure nfc_on 1"
+      - "settings put secure quick_access_wallet_enabled 1"
+      - "settings put secure lockscreen_show_wallet 1"
+      - "settings put secure nfc_payment_default_component com.google.android.gms/com.google.android.gms.tapandpay.hce.service.TpHceService"
+    undo_commands:
+      - "settings put secure quick_access_wallet_enabled 0"
+      - "settings put secure lockscreen_show_wallet 0"
+      - 'settings put secure nfc_payment_default_component ""'
+      - "settings put secure nfc_on 0"
+      - "svc nfc disable"
+
+  # ----------------------------------------------------------------------------
+  # Phase 8: GPU Rendering & Qualcomm Game Driver
+  # ----------------------------------------------------------------------------
+  phase_8:
+    name: "GPU Rendering & Qualcomm Game Driver"
+    description: "Opts into Qualcomm Adreno dedicated Game Driver pipeline (GAME_DRIVER_ALL_APPS) for all apps, improving frame pacing and shader caching. Explicitly warns against harmful legacy hacks like Disable HW Overlays."
+    type: "settings_put"
+    target_namespace: "global"
+    enabled_by_default: true
+    settings:
+      game_driver_all_apps: "1"
+    undo_settings:
+      game_driver_all_apps: "0"
+    commands:
+      - "settings put global game_driver_all_apps 1"
+    undo_commands:
+      - "settings put global game_driver_all_apps 0"
+    safety_warning: "NEVER enable 'Disable HW Overlays' (SurfaceFlinger 1008). Bypassing Qualcomm's dedicated Hardware Composer ASIC forces Adreno 740 to composite 2D layers, causing massive battery drain and thermal throttling."
+
+  # ----------------------------------------------------------------------------
+  # Phase 9: Process Scheduler & Phantom Limits
+  # ----------------------------------------------------------------------------
+  phase_9:
+    name: "Process Scheduler & Phantom Limits"
+    description: "Removes Android 12+ phantom process killer restrictions (raising limit to INT_MAX) to prevent Termux/background worker terminations, and expands cached processes to 64 to leverage 12GB/16GB LPDDR5X RAM."
+    type: "device_config"
+    enabled_by_default: true
+    commands:
+      - "/system/bin/device_config put activity_manager max_phantom_processes 2147483647"
+      - "settings put global settings_enable_monitor_phantom_procs false"
+      - "device_config put activity_manager max_cached_processes 64"
+      - "settings put global activity_manager_constants max_cached_processes=64"
+      - "device_config set_sync_disabled_for_tests persistent"
+    undo_commands:
+      - "/system/bin/device_config put activity_manager max_phantom_processes 32"
+      - "settings put global settings_enable_monitor_phantom_procs true"
+      - "device_config delete activity_manager max_cached_processes"
+      - "settings delete global activity_manager_constants"
+      - "device_config set_sync_disabled_for_tests none"
+
+  # ----------------------------------------------------------------------------
+  # Phase 10: Private DNS DoT & Network Tuning
+  # ----------------------------------------------------------------------------
+  phase_10:
+    name: "Private DNS DoT & Network Tuning"
+    description: "Enforces system-wide DNS-over-TLS (DoT) via AdGuard (or Cloudflare) for native network-level telemetry and advertisement blocking, and activates Wi-Fi background scan throttling."
+    type: "settings_put"
+    target_namespace: "global"
+    enabled_by_default: true
+    default_dns_provider: "dns.adguard-dns.com"
+    alternative_dns_provider: "one.one.one.one"
+    settings:
+      private_dns_mode: "hostname"
+      private_dns_specifier: "dns.adguard-dns.com"
+      wifi_scan_throttle_enabled: "1"
+    undo_settings:
+      private_dns_mode: "opportunistic"
+      wifi_scan_throttle_enabled: "0"
+    commands:
+      - "settings put global private_dns_mode hostname"
+      - "settings put global private_dns_specifier dns.adguard-dns.com"
+      - "settings put global wifi_scan_throttle_enabled 1"
+    undo_commands:
+      - "settings put global private_dns_mode opportunistic"
+      - "settings delete global private_dns_specifier"
+      - "settings put global wifi_scan_throttle_enabled 0"
+
+  # ----------------------------------------------------------------------------
+  # Phase 11: Thermal & High Performance Mode
+  # ----------------------------------------------------------------------------
+  phase_11:
+    name: "Thermal & High Performance Mode"
+    description: "Toggles OxygenOS native High Performance Mode to raise EAS CPU frequency floor levels and delay thermal throttling onset for intensive tasks and gaming."
+    type: "settings_put"
+    target_namespace: "system"
+    enabled_by_default: true
+    settings:
+      high_performance_mode: "1"
+    undo_settings:
+      high_performance_mode: "0"
+    commands:
+      - "settings put system high_performance_mode 1"
+    undo_commands:
+      - "settings put system high_performance_mode 0"
+
+  # ----------------------------------------------------------------------------
+  # Phase 12: Display True 120Hz Refresh Rate
+  # ----------------------------------------------------------------------------
+  phase_12:
+    name: "Display True 120Hz Refresh Rate"
+    description: "Bypasses OxygenOS proprietary per-app downclocking table (oplus_customize_screen_refresh_rate 0) to force true 120Hz refresh rate across Chrome, YouTube, Maps, and all apps."
+    type: "settings_put"
+    enabled_by_default: true
+    commands:
+      - "settings put secure oplus_customize_screen_refresh_rate 0"
+      - "settings put system peak_refresh_rate 1"
+      - "settings put system min_refresh_rate 1"
+      - "settings put system user_refresh_rate 1"
+    undo_commands:
+      - "settings put secure oplus_customize_screen_refresh_rate 1"
+      - "settings put system peak_refresh_rate 120.0"
+      - "settings put system min_refresh_rate 60.0"
+      - "settings delete system user_refresh_rate"

@@ -1,0 +1,16 @@
+<gcam_config version="9.4" model="CPH2691">
+    <!-- OnePlus 13R (Sony IMX890 50MP Quad-Bayer) Master 50MP XML Config -->
+    <preference key="pref_camera_resolution" value="50mp" />
+    <preference key="pref_resolution_key" value="full" />
+    <preference key="pref_raw_sensor_format" value="RAW10" />
+    <preference key="pref_camera_raw_output_key" value="1" />
+    <preference key="pref_aux_camera_key" value="1" />
+    <preference key="pref_camera_id_main" value="0" />
+    <preference key="pref_camera_id_ultra_wide" value="2" />
+    <preference key="pref_camera_id_front" value="1" />
+    <preference key="pref_device_model_back" value="PIXEL_8_PRO" />
+    <preference key="pref_device_model_front" value="PIXEL_8_PRO" />
+    <preference key="pref_quad_bayer_remosaic" value="1" />
+    <preference key="pref_hdr_plus_enhanced_key" value="1" />
+    <preference key="pref_sabre_key" value="1" />
+</gcam_config>
