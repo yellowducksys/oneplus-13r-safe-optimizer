@@ -2,7 +2,7 @@
 
 [![Device: OnePlus 13R](https://img.shields.io/badge/Device-OnePlus%2013R%20(CPH2691)-0055FF.svg?style=for-the-badge&logo=oneplus)](https://www.oneplus.com/)
 [![OS: OxygenOS 15 & 16](https://img.shields.io/badge/OS-OxygenOS%2015%20%26%2016%20(Android%2015%2F16)-FF2D20.svg?style=for-the-badge&logo=android)](https://www.oneplus.com/oxygenos)
-[![Platform: Snapdragon 8 Gen 2](https://img.shields.io/badge/SoC-Snapdragon%208%20Gen%202-EA4335.svg?style=for-the-badge&logo=qualcomm)](https://www.qualcomm.com/snapdragon)
+[![Platform: Snapdragon 8 Gen 3](https://img.shields.io/badge/SoC-Snapdragon%208%20Gen%202-EA4335.svg?style=for-the-badge&logo=qualcomm)](https://www.qualcomm.com/snapdragon)
 [![Security: 100% Rootless ADB](https://img.shields.io/badge/Security-100%25%20Rootless%20ADB-34A853.svg?style=for-the-badge&logo=android)](https://developer.android.com/studio/command-line/adb)
 [![Integrity: Widevine L1 & Banking Safe](https://img.shields.io/badge/Safety-Widevine%20L1%20%26%20Banking%20Safe-4285F4.svg?style=for-the-badge&logo=googlepay)](https://support.google.com/googlepay)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg?style=for-the-badge)](LICENSE)
