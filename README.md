@@ -2,7 +2,7 @@
 
 [![Device: OnePlus 13R](https://img.shields.io/badge/Device-OnePlus%2013R%20(CPH2691)-0055FF.svg?style=for-the-badge&logo=oneplus)](https://www.oneplus.com/)
 [![OS: OxygenOS 15 & 16](https://img.shields.io/badge/OS-OxygenOS%2015%20%26%2016%20(Android%2015%2F16)-FF2D20.svg?style=for-the-badge&logo=android)](https://www.oneplus.com/oxygenos)
-[![Platform: Snapdragon 8 Gen 3](https://img.shields.io/badge/SoC-Snapdragon%208%20Gen%202-EA4335.svg?style=for-the-badge&logo=qualcomm)](https://www.qualcomm.com/snapdragon)
+[![Platform: Snapdragon 8 Gen 3](https://img.shields.io/badge/SoC-Snapdragon%208%20Gen%203-EA4335.svg?style=for-the-badge&logo=qualcomm)](https://www.qualcomm.com/snapdragon)
 [![Security: 100% Rootless ADB](https://img.shields.io/badge/Security-100%25%20Rootless%20ADB-34A853.svg?style=for-the-badge&logo=android)](https://developer.android.com/studio/command-line/adb)
 [![Integrity: Widevine L1 & Banking Safe](https://img.shields.io/badge/Safety-Widevine%20L1%20%26%20Banking%20Safe-4285F4.svg?style=for-the-badge&logo=googlepay)](https://support.google.com/googlepay)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg?style=for-the-badge)](LICENSE)
@@ -63,7 +63,7 @@
 
 ## 1. Architectural Overview & Boundary Analysis
 
-The **OnePlus 13R** (internal model `CPH2691`, Indian regional variant `CPH2691IN`, board identifier `OP5D3BL1`) is driven by the **Qualcomm Snapdragon 8 Gen 2 (SM8550-AB)** mobile platform (1x 3.2GHz Cortex-X3 prime core, 4x 2.8GHz performance cores, 3x 2.0GHz efficiency cores), paired with the **Adreno 740 GPU**, **12GB or 16GB of ultra-fast LPDDR5X RAM**, and **UFS 4.0 flash storage**. It features a 1.5K 120Hz LTPO 4.0 AMOLED display and dual-cell 100W SuperVOOC charging.
+The **OnePlus 13R** (internal model `CPH2691`, Indian regional variant `CPH2691IN`, board identifier `OP5D3BL1`) is driven by the **Qualcomm Snapdragon 8 Gen 3 (SM8650-AB)** mobile platform (1x 3.3GHz Cortex-X4, 5x Cortex-A720, 2x Cortex-A520).
 
 While OxygenOS 15 and 16 (built on Android 15 & 16 and sharing the unified ColorOS codebase) deliver top-tier hardware potential, stock consumer firmware suffers from:
 - Aggressive OEM background process termination and artificial cached process bounds.
@@ -78,18 +78,18 @@ This project delivers a **publication-quality, rootless optimization guide and a
 
 | Dimension | What This Does ✅ | What This Doesn't Do ❌ |
 | :--- | :--- | :--- |
-| **Privilege Model** | Executes 100% within userland `shell` UID 2000 via official Android Debug Bridge (ADB). | **Never** requests or requires root (`su`), custom recoveries (TWRP/OrangeFox), or kernel modifications. |
+| **Privilege Model** | Executes 100% within userland `shell` UID 2000 via official Android Debug Bridge (ADB). | **Never** requests or requires root (`su`), custom recoveries (TWRP/OrangeFox), or ker[...]
 | **Bootloader & Security** | Operates on locked retail bootloaders. Preserves hardware fuses. | **Never** unlocks the bootloader or trips security flags. |
 | **DRM & Widevine** | Preserves **Widevine L1** hardware keys permanently. Netflix, Prime Video, and Disney+ stream in Full HD and 4K HDR. | **Never** degrades DRM to Widevine L3. |
-| **Banking & Payments** | Retains Google Pay, PhonePe, Paytm, BHIM UPI, Kotak, HDFC, and all banking apps. Passes Google Play Integrity (`MEETS_DEVICE_INTEGRITY`). | **Never** triggers root detection, integrity failures, or biometric banking lockouts. |
-| **Package Management** | Uses non-destructive `pm disable-user --user 0` to freeze background execution. Packages remain in `/system` and can be enabled instantly. | **Never** executes destructive `pm uninstall`, which can break OS dependencies, crash OTA updates, or require factory resets. |
-| **OTA System Updates** | Keeps `com.oplus.ota`, `com.oplus.romupdate`, and `com.oplus.cota` completely untouched. Official OxygenOS security patches install smoothly. | **Never** interferes with seamless A/B partition updates or carrier profile provisioning. |
+| **Banking & Payments** | Retains Google Pay, PhonePe, Paytm, BHIM UPI, Kotak, HDFC, and all banking apps. Passes Google Play Integrity (`MEETS_DEVICE_INTEGRITY`). | **Never** triggers root detection[...]
+| **Package Management** | Uses non-destructive `pm disable-user --user 0` to freeze background execution. Packages remain in `/system` and can be enabled instantly. | **Never** executes destructive `[...]
+| **OTA System Updates** | Keeps `com.oplus.ota`, `com.oplus.romupdate`, and `com.oplus.cota` completely untouched. Official OxygenOS security patches install smoothly. | **Never** interferes with sea[...]
 | **User Data Integrity** | Flushes temporary caches and garbage-collects deleted NAND blocks. | **Never** wipes user photos, videos, contacts, chat histories, or application app-data databases. |
 | **Reversibility** | Provides an exact, deterministic, 100% symmetrical reverse command for **every single setting modified**. | **Never** makes irreversible, one-way system modifications. |
 
 ### Rootless Security Boundary
 
-Under Android's Linux kernel security architecture, ADB operates under UID 2000 (`shell`) with strict SELinux `enforcing` rules. It cannot write directly to block devices, `/system`, `/vendor`, or protected `/sys/` kernel nodes. Every optimization in this suite targets documented Android framework APIs:
+Under Android's Linux kernel security architecture, ADB operates under UID 2000 (`shell`) with strict SELinux `enforcing` rules. It cannot write directly to block devices, `/system`, `/vendor`, or pro[...]
 - `android.provider.Settings` (Global, System, Secure namespaces)
 - `android.os.DeviceIdleController` (Doze power whitelist)
 - `android.content.pm.PackageManager` (User package state control)
@@ -104,13 +104,13 @@ Under Android's Linux kernel security architecture, ADB operates under UID 2000 
 Before issuing any manual ADB commands or executing the automated Python script, your OnePlus 13R must be placed into developer authorization mode.
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────────────────��[...]
 │                    PRE-FLIGHT SETUP WORKFLOW SUMMARY                         │
 │                                                                              │
 │  [Build Number x7] ──► [Developer Options] ──► [USB Debugging: ON]           │
 │                                                       │                      │
 │  [Verify: adb devices -l] ◄── [RSA Auth Prompt: ALLOW] ◄── [Disable Perm: ON]│
-└──────────────────────────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────────────��[...]
 ```
 
 ### Step 1: Enable Developer Options
@@ -127,7 +127,7 @@ Before issuing any manual ADB commands or executing the automated Python script,
 4. *(Crucial for OxygenOS/ColorOS)*: Scroll further down to find **Disable permission monitoring** (or **Permission Monitoring**) and toggle it to **ON**.
    > [!IMPORTANT]
    > **Why "Disable permission monitoring" is necessary:**  
-   > ColorOS and OxygenOS incorporate an aggressive security sandbox (`SafeCenter`) that intercepts ADB shell commands altering system settings, throwing `SecurityException: Permission Denial` errors in terminal. Toggling this option permits ADB to update system settings without recurring popup interruptions.
+   > ColorOS and OxygenOS incorporate an aggressive security sandbox (`SafeCenter`) that intercepts ADB shell commands altering system settings, throwing `SecurityException: Permission Denial` errors [...]
 
 ### Step 3: Connect to PC & Complete the RSA Handshake
 1. Connect your OnePlus 13R to your Windows PC using an authentic USB-C to USB-C or USB-A to USB-C cable (avoid cheap charging-only cables).
@@ -162,7 +162,7 @@ List of devices attached
 
 ### Windows PowerShell 5.1 Compatibility Warning (Strictly Zero `&&` Syntax)
 
-Windows 10 and Windows 11 default to **Windows PowerShell 5.1** (`$PSVersionTable.PSVersion = 5.1.x`). Unlike Linux Bash, macOS Zsh, or PowerShell Core 7 (`pwsh`), **PowerShell 5.1 does not support the POSIX `&&` statement chaining operator.**
+Windows 10 and Windows 11 default to **Windows PowerShell 5.1** (`$PSVersionTable.PSVersion = 5.1.x`). Unlike Linux Bash, macOS Zsh, or PowerShell Core 7 (`pwsh`), **PowerShell 5.1 does not support th[...]
 
 If you run:
 ```powershell
@@ -224,45 +224,45 @@ ADB architecture relies on a local background server daemon running on TCP port 
 
 > [!WARNING]
 > ### ⛔ MANDATORY SYSTEM BLACKLIST (NEVER TOUCH)
-> Freezing (`pm disable-user`), uninstalling (`pm uninstall`), or modifying **ANY** of the 15 packages below will result in **immediate bootloops, total loss of cellular and emergency calling, permanent USB lockout, bricked biometrics, or charging failure**.  
+> Freezing (`pm disable-user`), uninstalling (`pm uninstall`), or modifying **ANY** of the 15 packages below will result in **immediate bootloops, total loss of cellular and emergency calling, permane[...]
 > The included Python automation script (`optimize_13r.py`) strictly enforces this blacklist at the code level and will refuse to touch these packages under any circumstances.
 
 ### Protected Package Matrix
 
 | # | Package Name | Architectural Role | Hardware / Subsystem Coupling | Catastrophic Failure Mode |
 | :-: | :--- | :--- | :--- | :--- |
-| **1** | `com.oplus.athena` | Athena Resource Governor | Hard-bound to `system_server` via JNI & Binder IPC. Governs CPU core affinity & LMK. | **Immediate Bootloop**. Watchdog timer detects missing IPC service within 60s; phone reboots to Recovery or Qualcomm EDL crashdump. |
-| **2** | `com.oplus.safecenter` | Security Framework | Dispatches runtime permission dialogues, USB Debugging confirmation prompts, and App Ops. | **Permanent USB Lockout & Permission Crashes**. Newly requested app permissions immediately crash. Revoking USB auth permanently locks you out of ADB. |
-| **3** | `com.oplus.battery` | SuperVOOC Power HAL | Communicates with hardware Power Management IC (PMIC) and BQ25890 dual-cell charge controller. | **Charging Throttled to 10W & Thermal Trips**. Drops charging speed to 5V/2A, corrupts battery percentage reporting, or trips false thermal shutdowns. |
-| **4** | `com.oplus.securityguard` | Biometric Keystore Bridge | Bridges optical under-display fingerprint daemon, face unlock, and Android Keystore HAL. | **Biometric & Banking Failure**. Fingerprint scanner reports "Hardware unavailable". Hardware-backed Keystore fails, causing Google Pay, UPI, and banking apps to reject logins. |
-| **5** | `com.oplus.camera` | Hasselblad Camera HAL | Proprietary multi-frame HDR engine, optical image stabilization (OIS) calibration, and ISP bridge. | **Complete Camera Subsystem Crash**. Stock camera app fails to launch; WhatsApp, Instagram, Snapchat, and GCam viewfinders freeze or display black screens. |
-| **6** | `com.android.se` | Secure Element Service | Implements OMAPI (Open Mobile API) routing for eSE (embedded Secure Element) and UICC SIM applets. | **Contactless Payment Failure**. Google Wallet contactless tap-and-pay and bank card tokenization stop functioning completely. |
-| **7** | `com.android.systemui` | System User Interface | Host process for navigation gestures, status bar, notifications, lockscreen surface, and Quick Settings. | **System Black Screen**. User shell immediately terminates; system enters a repetitive restart loop. |
-| **8** | `com.oplus.ota` | OxygenOS OTA Engine | Downloads, verifies cryptographic signatures, and applies seamless A/B partition updates. | **OTA Update Brick**. Device cannot query, download, or install official OxygenOS security patches or major OS upgrades. |
-| **9** | `com.oplus.romupdate` | ROM Update Carrier Config | Pushes dynamic carrier VoLTE/VoNR profiles, APN databases, and modem baseband configurations. | **Cellular Degradation / Softbrick**. Causes missing APNs, loss of 5G standalone (SA) carrier aggregation, and recurring boot crash popups. |
-| **10** | `com.oplus.cota` | Regional Carrier Service | Delivers regional Indian carrier configurations (Jio, Airtel, Vi) for network slicing and 5G VoNR. | **Network Slicing & VoLTE Failure**. Results in dropped voice calls, broken SMS delivery, or inability to latch onto Indian 5G SA bands. |
-| **11** | `com.google.android.gms` | Google Play Services | Provides Play Integrity API, Firebase Cloud Messaging (FCM push), Google OAuth, and location services. | **Total App Ecosystem Collapse**. 95% of third-party apps fail to receive push notifications; all banking apps fail Play Integrity verification. |
-| **12** | `com.qualcomm.qti.telephonyservice` | Qualcomm Telephony HAL | Interfaces Android TelephonyManager with Qualcomm Snapdragon X70 baseband modem and RIL. | **No Cellular Service & Emergency Call Failure**. SIM cards are not detected; emergency calling (112/911) is disabled. |
-| **13** | `com.android.phone` | Core Telephony Framework | Manages cellular radio state, call routing, SIM subscription services, and emergency dialer. | **Dialer & Call Crashes**. Phone app crashes on incoming/outgoing calls; VoLTE/VoNR drops. |
-| **14** | `com.android.settings` | Android Settings Datastore | Central user configuration UI and Settings Provider backend database (`settings.db`). | **Settings Crash & System Lockout**. All system settings become inaccessible; phone enters an unusable state. |
-| **15** | `com.oplus.aod` | Always-On Display Surface | Draws lockscreen ambient display and accurately renders the target zone for optical fingerprint illumination. | **Broken In-Display Fingerprint**. Optical sensor cannot illuminate finger without AOD positioning coordinates while the screen is off. |
+| **1** | `com.oplus.athena` | Athena Resource Governor | Hard-bound to `system_server` via JNI & Binder IPC. Governs CPU core affinity & LMK. | **Immediate Bootloop**. Watchdog timer detects missing [...]
+| **2** | `com.oplus.safecenter` | Security Framework | Dispatches runtime permission dialogues, USB Debugging confirmation prompts, and App Ops. | **Permanent USB Lockout & Permission Crashes**. Newl[...]
+| **3** | `com.oplus.battery` | SuperVOOC Power HAL | Communicates with hardware Power Management IC (PMIC) and BQ25890 dual-cell charge controller. | **Charging Throttled to 10W & Thermal Trips**. Dr[...]
+| **4** | `com.oplus.securityguard` | Biometric Keystore Bridge | Bridges optical under-display fingerprint daemon, face unlock, and Android Keystore HAL. | **Biometric & Banking Failure**. Fingerprin[...]
+| **5** | `com.oplus.camera` | Hasselblad Camera HAL | Proprietary multi-frame HDR engine, optical image stabilization (OIS) calibration, and ISP bridge. | **Complete Camera Subsystem Crash**. Stock c[...]
+| **6** | `com.android.se` | Secure Element Service | Implements OMAPI (Open Mobile API) routing for eSE (embedded Secure Element) and UICC SIM applets. | **Contactless Payment Failure**. Google Walle[...]
+| **7** | `com.android.systemui` | System User Interface | Host process for navigation gestures, status bar, notifications, lockscreen surface, and Quick Settings. | **System Black Screen**. User shel[...]
+| **8** | `com.oplus.ota` | OxygenOS OTA Engine | Downloads, verifies cryptographic signatures, and applies seamless A/B partition updates. | **OTA Update Brick**. Device cannot query, download, or in[...]
+| **9** | `com.oplus.romupdate` | ROM Update Carrier Config | Pushes dynamic carrier VoLTE/VoNR profiles, APN databases, and modem baseband configurations. | **Cellular Degradation / Softbrick**. Caus[...]
+| **10** | `com.oplus.cota` | Regional Carrier Service | Delivers regional Indian carrier configurations (Jio, Airtel, Vi) for network slicing and 5G VoNR. | **Network Slicing & VoLTE Failure**. Resul[...]
+| **11** | `com.google.android.gms` | Google Play Services | Provides Play Integrity API, Firebase Cloud Messaging (FCM push), Google OAuth, and location services. | **Total App Ecosystem Collapse**. [...]
+| **12** | `com.qualcomm.qti.telephonyservice` | Qualcomm Telephony HAL | Interfaces Android TelephonyManager with Qualcomm Snapdragon X75 5G baseband modem and RIL. | **No Cellular Service & Emergency C[...]
+| **13** | `com.android.phone` | Core Telephony Framework | Manages cellular radio state, call routing, SIM subscription services, and emergency dialer. | **Dialer & Call Crashes**. Phone app crashes [...]
+| **14** | `com.android.settings` | Android Settings Datastore | Central user configuration UI and Settings Provider backend database (`settings.db`). | **Settings Crash & System Lockout**. All system[...]
+| **15** | `com.oplus.aod` | Always-On Display Surface | Draws lockscreen ambient display and accurately renders the target zone for optical fingerprint illumination. | **Broken In-Display Fingerprint[...]
 
 ### Deep Architectural Justifications
 
 #### 1. `com.oplus.athena` (Athena Core Governor)
-`athena` is not a typical bloatware background task. In OxygenOS 15/16, it is tightly coupled to `system_server` via custom JNI bindings. It monitors Linux kernel PSI (Pressure Stall Information), dynamically handles CPU core pinning across the Snapdragon 8 Gen 2's tri-cluster architecture, and drives ColorOS's proprietary process lifecycle. If disabled, Android's `Watchdog` thread detects a missing Binder interface within 60 seconds of boot, triggering a fatal kernel panic that boots the phone into Recovery Mode.
+`athena` is not a typical bloatware background task. In OxygenOS 15/16, it is tightly coupled to `system_server` via custom JNI bindings. It monitors Linux kernel PSI (Pressure Stall Information), dyn[...]
 
 #### 2. `com.oplus.safecenter` (SafeCenter Security Engine)
-SafeCenter is the underlying service that renders the "Allow USB Debugging?" dialog, runtime permission requests (Camera, Microphone, Location), and App Ops confirmations. Freezing SafeCenter causes runtime permission prompts to throw unhandled null-pointer exceptions. If USB debugging authorization is ever revoked, the phone will never display the RSA authorization prompt again, permanently locking the user out of ADB.
+SafeCenter is the underlying service that renders the "Allow USB Debugging?" dialog, runtime permission requests (Camera, Microphone, Location), and App Ops confirmations. Freezing SafeCenter causes r[...]
 
 #### 3. `com.oplus.battery` (SuperVOOC Dual-Cell Power HAL)
-The OnePlus 13R utilizes dual-cell series battery architecture charging at 100W (or 80W in North America). The battery charging curve is not handled purely in kernel silicon; `com.oplus.battery` communicates with the hardware Power Management IC (PMIC) and the BQ25890 charge controller via proprietary I2C/SPMI protocols. Disabling this service forces the hardware into fail-safe mode, restricting charging speeds to baseline USB-PD 5V/2A (10W) and triggering false battery overheat shutdown alerts.
+The OnePlus 13R utilizes dual-cell series battery architecture charging at 100W (or 80W in North America). The battery charging curve is not handled purely in kernel silicon; `com.oplus.battery` commu[...]
 
 #### 4. `com.oplus.securityguard` (SecurityGuard Biometrics Bridge)
-Under-display optical fingerprint scanners require precise calibration curves and secure communication with the TrustZone / Qualcomm Secure Execution Environment (QSEE). `com.oplus.securityguard` implements the Android Keystore HAL hardware bridge. Freezing it breaks the optical fingerprint sensor (`Hardware unavailable`) and invalidates hardware-backed cryptographic keys, causing banking apps, UPI apps (Google Pay, PhonePe, Paytm), and password managers to fail authentication.
+Under-display optical fingerprint scanners require precise calibration curves and secure communication with the TrustZone / Qualcomm Secure Execution Environment (QSEE). `com.oplus.securityguard` impl[...]
 
 #### 5. `com.oplus.camera` (Hasselblad Camera HAL Bridge)
-Even if you use GCam or third-party camera apps, `com.oplus.camera` hosts the proprietary camera provider service responsible for multi-frame HDR synthesis, optical image stabilization (OIS) gyro calibration, and ISP pipeline communication. Freezing this package kills the camera subsystem across all installed applications.
+Even if you use GCam or third-party camera apps, `com.oplus.camera` hosts the proprietary camera provider service responsible for multi-frame HDR synthesis, optical image stabilization (OIS) gyro cali[...]
 
 ---
 
@@ -275,7 +275,7 @@ Execute these phases sequentially in Windows PowerShell, or run the automated Py
 ### Phase 1: Storage & Memory Cache Flush
 
 #### Technical Explanation
-Executes an `FITRIM` ioctl down to the UFS 4.0 flash storage controller across mounted ext4/f2fs partitions (`/data`, `/cache`, `/metadata`) via Android's Storage Manager (`sm fstrim`). This signals the flash controller which NAND blocks are marked as deleted, allowing the internal garbage collection logic to consolidate physical blocks and avoid write amplification. Simultaneously, `pm trim-caches 100G` directs `PackageManagerService` to prune purgeable temporary application cache files (stale Glide image caches, HTTP webview caches, temporary video buffers) across all installed applications.
+Executes an `FITRIM` ioctl down to the UFS 4.0 flash storage controller across mounted ext4/f2fs partitions (`/data`, `/cache`, `/metadata`) via Android's Storage Manager (`sm fstrim`). This signals t[...]
 
 #### Why It Helps
 - Reclaims raw read/write throughput on UFS 4.0 storage.
@@ -307,7 +307,7 @@ Modifies the Android Window Manager (`WindowManagerService`) global animation du
 - `transition_animation_scale`: Governs activity-to-activity transitions within applications.
 - `animator_duration_scale`: Governs programmatic `ValueAnimator` and `ObjectAnimator` durations (e.g. dropdown menus, dialog pops, progress indicators).
 
-Setting these scales to `0.5` cuts transition durations by 50%, matching the ultra-fast 120Hz refresh rate of the LTPO 4.0 AMOLED display without completely disabling animations (which causes visual snapping and broken gesture tracking).
+Setting these scales to `0.5` cuts transition durations by 50%, matching the ultra-fast 120Hz refresh rate of the LTPO 4.0 AMOLED display without completely disabling animations (which causes visual s[...]
 
 #### Why It Helps
 - Delivers instantaneous UI feedback, making the phone feel twice as snappy.
@@ -341,7 +341,7 @@ adb shell settings put global animator_duration_scale 1.0
 Configures global connectivity and battery management policies within `ConnectivityService`, `WifiService`, and `BluetoothManagerService`:
 - `wifi_scan_always_enabled 0`: Disables background Wi-Fi location triangulation scans when Wi-Fi is toggled off in Quick Settings.
 - `ble_scan_always_enabled 0`: Disables Bluetooth Low Energy background beacon sniffing when Bluetooth is turned off.
-- `mobile_data_always_on 0`: Reverses an aggressive AOSP Developer Options setting that keeps the Qualcomm Snapdragon X70 5G baseband modem powered up and transmitting keep-alive packets even when securely connected to a Wi-Fi network.
+- `mobile_data_always_on 0`: Reverses an aggressive AOSP Developer Options setting that keeps the Qualcomm Snapdragon X75 5G baseband modem powered up and transmitting keep-alive packets even when sec[...]
 - `adaptive_battery_management_enabled 1`: Enforces AOSP Adaptive Battery resource budgeting, dynamically restricting CPU wakeups for apps you rarely open.
 
 #### Why It Helps
@@ -376,7 +376,7 @@ adb shell settings put global adaptive_battery_management_enabled 1
 ### Phase 4: Doze Whitelist (Instant Notifications & Background Audio)
 
 #### Technical Explanation
-Interacts with Android's `DeviceIdleController` via `dumpsys deviceidle whitelist +<package>`. When an Android device enters Deep Doze (screen off, motionless on a surface for several minutes), the OS freezes network access, suspends jobs, and halts CPU wake-locks. OxygenOS applies aggressive non-standard battery optimizations that frequently delay high-priority Firebase Cloud Messaging (FCM) notifications and kill background audio streams. Adding critical communication and media applications to the power-save whitelist (`mPowerSaveWhitelistUserApps`) guarantees that push notifications and streaming audio sockets remain active during Deep Doze.
+Interacts with Android's `DeviceIdleController` via `dumpsys deviceidle whitelist +<package>`. When an Android device enters Deep Doze (screen off, motionless on a surface for several minutes), the OS[...]
 
 #### Why It Helps
 - Guarantees zero-delay delivery of WhatsApp, Telegram, Gmail, and Google Messages alerts.
@@ -415,11 +415,11 @@ adb shell dumpsys deviceidle whitelist -com.discord
 ### Phase 5: Safe Telemetry Freeze (Zero Bloat)
 
 #### Technical Explanation
-Executes `pm disable-user --user 0 <package>` to disable execution of non-essential OEM analytics, background tracking daemons, HeyTap marketing push services, and dormant Facebook daemons for the primary user profile (`user 0`).
+Executes `pm disable-user --user 0 <package>` to disable execution of non-essential OEM analytics, background tracking daemons, HeyTap marketing push services, and dormant Facebook daemons for the pri[...]
 
 > [!NOTE]
 > **Why `pm disable-user --user 0` is superior to `pm uninstall`:**  
-> `pm disable-user` simply toggles the package state to `STATE_DISABLED_USER`. The underlying APK remains cryptographically intact in `/system` or `/vendor`. It consumes zero CPU cycles and zero RAM, emits zero wake-locks, and can be re-enabled instantly with `pm enable` without requiring a reboot. In contrast, `pm uninstall -k --user 0` breaks package dependencies and causes OTA security updates to fail.
+> `pm disable-user` simply toggles the package state to `STATE_DISABLED_USER`. The underlying APK remains cryptographically intact in `/system` or `/vendor`. It consumes zero CPU cycles and zero RAM, [...]
 
 #### Verified Active Freeze Targets (13 Packages)
 - **OEM Analytics & Logging**:
@@ -445,7 +445,7 @@ The following 3 packages are frequently listed in generic OnePlus debloat guides
 2. `com.heytap.pictorial` (Omitted from Indian retail firmware to comply with local lockscreen ad policies).
 3. `net.oneplus.forums` (Sunset in favor of the integrated OnePlus Community web-app).
 
-Attempting to run `pm disable-user --user 0` against these absent packages in manual shells produces `java.lang.IllegalArgumentException: Unknown package`. The automated Python script (`optimize_13r.py`) handles this gracefully by checking installed packages upfront and trapping exceptions.
+Attempting to run `pm disable-user --user 0` against these absent packages in manual shells produces `java.lang.IllegalArgumentException: Unknown package`. The automated Python script (`optimize_13r.p[...]
 
 #### Why It Helps
 - Frees 300MB–500MB of resident RAM.
@@ -494,7 +494,7 @@ adb shell pm enable --user 0 com.oneplus.membership
 ### Phase 6: App & System AOT Speed Compilation
 
 #### Technical Explanation
-Android applications are distributed as Dalvik Executable (DEX) bytecode. The Android Runtime (ART) uses a hybrid compilation model: JIT (Just-In-Time) interpretation during active execution, and profile-guided background compilation (`dex2oat`) when the phone is charging idle overnight.
+Android applications are distributed as Dalvik Executable (DEX) bytecode. The Android Runtime (ART) uses a hybrid compilation model: JIT (Just-In-Time) interpretation during active execution, and prof[...]
 
 Invoking `cmd package compile -m speed <package>` forces the ART compiler to perform complete **Ahead-Of-Time (AOT)** compilation:
 - Translates **100% of the application's bytecode** directly into native 64-bit ARM64 machine instructions (stored in `.odex` / `.art` files in `/data/dalvik-cache/`).
@@ -516,7 +516,7 @@ Invoking `cmd package compile -m speed <package>` forces the ART compiler to per
 #### Why It Helps
 - Cold launch speeds improve by 30% to 50%.
 - Eliminates initial dropped frames and stutter during UI layout inflation.
-- Exploits the Snapdragon 8 Gen 2's Cortex-X3 prime core to execute pure native machine code.
+- Exploits the Snapdragon 8 Gen 3's Cortex-X4 prime core to execute pure native machine code.
 
 #### Stock Default
 `speed-profile` or `verify` (relies on opportunistic overnight compilation).
@@ -556,7 +556,7 @@ adb shell cmd package compile --reset -a
 ### Phase 7: Google Wallet & NFC Quick-Access Tile Fix
 
 #### Technical Explanation
-In OxygenOS 15 and 16, a known integration defect causes the Quick Settings "Google Wallet" tile and lockscreen shortcut to remain disabled, missing, or unresponsive. This occurs because the default Host Card Emulation (HCE) routing component is not automatically registered in `Settings.Secure`.
+In OxygenOS 15 and 16, a known integration defect causes the Quick Settings "Google Wallet" tile and lockscreen shortcut to remain disabled, missing, or unresponsive. This occurs because the default H[...]
 
 This phase explicitly:
 1. Enables the NFC hardware radio (`svc nfc enable`).
@@ -593,20 +593,20 @@ adb shell svc nfc disable
 ### Phase 8: GPU Rendering & Qualcomm Game Driver Pipeline
 
 #### Technical Explanation
-Android's Graphics Environment provides an updatable driver pipeline (`Settings.Global.GAME_DRIVER_ALL_APPS`). By default, non-whitelisted applications fall back to standard system graphics drivers. Setting `game_driver_all_apps` to `1` instructs Android to prioritize Qualcomm's dedicated, vendor-optimized Game Driver pipeline across the Adreno 740 GPU for all applications.
+Android's Graphics Environment provides an updatable driver pipeline (`Settings.Global.GAME_DRIVER_ALL_APPS`). By default, non-whitelisted applications fall back to standard system graphics drivers. S[...]
 
 #### Why It Helps
 - Enhances frame pacing consistency and reduces frame jitter in 3D apps and games.
 - Optimizes Vulkan 1.3 and OpenGL ES shader cache compilation.
-- Lowers GPU driver overhead on the Adreno 740 silicon.
+- Lowers GPU driver overhead on the Adreno 750 silicon.
 
 #### ⛔ Debunking the "Disable HW Overlays" Myth
 Many outdated optimization guides tell users to run:
 `adb shell service call SurfaceFlinger 1008 i32 1` ("Disable HW Overlays").
 
-**Why this is a catastrophic anti-pattern on Snapdragon 8 Gen 2:**
-1. The Snapdragon 8 Gen 2 features a dedicated silicon ASIC called the **Hardware Composer (HWC / Display Processing Unit)**. The HWC blends multiple 2D surfaces (Status Bar, Navigation Bar, Wallpaper, Video Overlays) with virtually zero power consumption.
-2. Disabling HW overlays instructs `SurfaceFlinger` to bypass the HWC ASIC and wake the Adreno 740 3D GPU every 8.3 milliseconds (at 120Hz) simply to redraw static UI elements.
+**Why this is a catastrophic anti-pattern on Snapdragon 8 Gen 3:**
+1. The Snapdragon 8 Gen 3 features a dedicated silicon ASIC called the **Hardware Composer (HWC / Display Processing Unit)**. The HWC blends multiple 2D surfaces (Status Bar, Navigation Bar, Wallpaper[...]
+2. Disabling HW overlays instructs `SurfaceFlinger` to bypass the HWC ASIC and wake the Adreno 750 3D GPU every 8.3 milliseconds (at 120Hz) simply to redraw static UI elements.
 3. **Result**: Catastrophic battery drain, rapid thermal buildup, and early thermal throttling.
 4. **Never disable HW overlays.** This suite strictly avoids it.
 
@@ -628,9 +628,9 @@ adb shell settings put global game_driver_all_apps 0
 ### Phase 9: Process Scheduler & Phantom Process Tuning
 
 #### Technical Explanation
-Android 12 introduced the **Phantom Process Killer** (`PhantomProcessList`), which monitors child processes spawned by apps (e.g. background threads, terminal commands in Termux, Syncthing workers, torrent background daemons). If an app spawns more than 32 child processes, Android abruptly terminates them.
+Android 12 introduced the **Phantom Process Killer** (`PhantomProcessList`), which monitors child processes spawned by apps (e.g. background threads, terminal commands in Termux, Syncthing workers, to[...]
 
-Furthermore, AOSP caps cached background processes (`max_cached_processes`) at 32. The OnePlus 13R features **12GB or 16GB of LPDDR5X RAM**. Capping cached processes at 32 leaves 6GB–8GB of physical RAM completely empty while aggressively killing recently used apps, forcing expensive cold restarts from UFS storage.
+Furthermore, AOSP caps cached background processes (`max_cached_processes`) at 32. The OnePlus 13R features **12GB or 16GB of LPDDR5X RAM**. Capping cached processes at 32 leaves 6GB–8GB of physical[...]
 
 This phase:
 1. Raises `max_phantom_processes` to `2147483647` (`INT_MAX`) and disables phantom process monitoring.
@@ -670,9 +670,9 @@ adb shell device_config set_sync_disabled_for_tests none
 ### Phase 10: Private DNS DoT & Network Tuning
 
 #### Technical Explanation
-By default, cellular carriers and public Wi-Fi access points intercept plaintext DNS requests (UDP port 53), allowing tracking and ISP advertising injection. Android features a native DNS-over-TLS (DoT) engine that encrypts DNS queries over port 853.
+By default, cellular carriers and public Wi-Fi access points intercept plaintext DNS requests (UDP port 53), allowing tracking and ISP advertising injection. Android features a native DNS-over-TLS (Do[...]
 
-Setting `private_dns_specifier` to `dns.adguard-dns.com` enforces encrypted DoT and blocks tracking scripts, analytics beacons, and advertising domains at the operating system socket layer before any network connection is initiated.  
+Setting `private_dns_specifier` to `dns.adguard-dns.com` enforces encrypted DoT and blocks tracking scripts, analytics beacons, and advertising domains at the operating system socket layer before any [...]
 *(Alternative: Use `one.one.one.one` for Cloudflare's ultra-low latency, non-filtering private DNS).*
 
 Additionally, `wifi_scan_throttle_enabled 1` enforces Wi-Fi scan throttling, restricting background applications from waking the Qualcomm FastConnect 7800 Wi-Fi radio to scan for nearby SSIDs.
@@ -681,7 +681,7 @@ Additionally, `wifi_scan_throttle_enabled 1` enforces Wi-Fi scan throttling, res
 - **Myth**: Running `setprop net.tcp.buffersize.*` speeds up Wi-Fi.  
   *Fact*: SELinux strictly blocks the `shell` UID from writing to `net.*` properties. In rootless ADB, these commands fail silently.
 - **Myth**: Disabling IPv6 improves battery life.  
-  *Fact*: Indian telecom carriers (Reliance Jio and Bharti Airtel) operate **IPv6 single-stack or dual-stack networks**. Disabling IPv6 completely breaks VoLTE and 5G VoNR calling. This suite leaves IPv6 untouched.
+  *Fact*: Indian telecom carriers (Reliance Jio and Bharti Airtel) operate **IPv6 single-stack or dual-stack networks**. Disabling IPv6 completely breaks VoLTE and 5G VoNR calling. This suite leaves I[...]
 
 #### Why It Helps
 - Blocks 90%+ of in-app ads and telemetry beacons without running a battery-draining VPN service.
@@ -719,11 +719,11 @@ adb shell settings put global wifi_scan_throttle_enabled 0
 ### Phase 11: Thermal & OxygenOS High Performance Mode
 
 #### Technical Explanation
-OxygenOS incorporates an internal high-performance governor toggle stored in `Settings.System.high_performance_mode`. Toggling this to `1` instructs the OPlus PowerHAL and Qualcomm Energy Aware Scheduling (EAS) governor to raise CPU frequency floor levels across the Cortex-X3 and Cortex-A715 clusters, maximize touch digitizer polling rates, and delay the onset of thermal throttling by 2°C–3°C.
+OxygenOS incorporates an internal high-performance governor toggle stored in `Settings.System.high_performance_mode`. Toggling this to `1` instructs the OPlus PowerHAL and Qualcomm Energy Aware Schedu[...]
 
 #### Daily vs. Benchmark Usage Guidance
 - **For Gaming & Heavy Workloads**: Excellent for locking 90/120 FPS in BGMI, Genshin Impact, and Call of Duty Warzone.
-- **For Daily Driving**: Running High Performance Mode continuously increases battery consumption by ~10–12% during active screen-on time and causes the phone to run ~2°C warmer under continuous loads.
+- **For Daily Driving**: Running High Performance Mode continuously increases battery consumption by ~10–12% during active screen-on time and causes the phone to run ~2°C warmer under continuous lo[...]
 - **Fixed Performance Mode Warning**: Never run `cmd power set-fixed-performance-mode-enabled true` for daily use; it locks CPU clocks at static states and disables idle power collapse.
 
 #### Stock Default
@@ -744,11 +744,11 @@ adb shell settings put system high_performance_mode 0
 ### Phase 12: Display True 120Hz Refresh Rate Unlock
 
 #### Technical Explanation
-The OnePlus 13R features an LTPO 4.0 AMOLED display capable of 1Hz–120Hz variable refresh rates. However, OxygenOS incorporates an internal XML downclocking table that arbitrarily throttles **Google Chrome, YouTube, Google Maps, video players, and third-party webviews to 60Hz**, causing noticeable stuttering when scrolling. Selecting "High (120Hz)" in Display Settings does not override this OEM table.
+The OnePlus 13R features an LTPO 4.0 AMOLED display capable of 1Hz–120Hz variable refresh rates. However, OxygenOS incorporates an internal XML downclocking table that arbitrarily throttles **Google[...]
 
 This phase:
 1. Sets `secure:oplus_customize_screen_refresh_rate 0`, completely disabling ColorOS's proprietary per-app downclocking table.
-2. Sets `system:peak_refresh_rate 1`, `system:min_refresh_rate 1`, and `system:user_refresh_rate 1`. In modern OxygenOS, setting these thresholds to `1` instructs `SurfaceFlinger` to lock the display panel mode to the maximum 120Hz refresh rate.
+2. Sets `system:peak_refresh_rate 1`, `system:min_refresh_rate 1`, and `system:user_refresh_rate 1`. In modern OxygenOS, setting these thresholds to `1` instructs `SurfaceFlinger` to lock the display [...]
 
 #### Why It Helps
 - Unlocks butter-smooth 120 FPS scrolling across YouTube comments, Chrome web pages, Google Maps navigation, and all third-party applications.
@@ -779,10 +779,10 @@ adb shell settings delete system user_refresh_rate
 
 ## 6. Complete 1-Click Automated CLI Guide (`optimize_13r.py`)
 
-The repository includes a standalone, production-grade Python CLI tool: `optimize_13r.py`. It automates all 12 phases, handles device connection state transitions, auto-discovers ADB, filters missing packages, provides safe dry-run simulations, and executes 100% symmetrical rollbacks.
+The repository includes a standalone, production-grade Python CLI tool: `optimize_13r.py`. It automates all 12 phases, handles device connection state transitions, auto-discovers ADB, filters missing [...]
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────────────────��[...]
 │                      OPTIMIZE_13R.PY ARCHITECTURE                           │
 │                                                                             │
 │  [CLI / Config] ──► [ADB Auto-Discovery] ──► [Persistent Server Init]       │
@@ -791,7 +791,7 @@ The repository includes a standalone, production-grade Python CLI tool: `optimiz
 │          ▲                    ▲                                             │
 │          │                    │                                             │
 │    [File Logger]    [3-Tier Missing Package Trap]                           │
-└─────────────────────────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────────────��[...]
 ```
 
 ### Requirements & Installation
@@ -871,7 +871,7 @@ python optimize_13r.py --dry-run --undo --phases 2,12
 
 ### External Configuration (`config.yaml` / `config.json`)
 
-The script dynamically loads settings, protected blacklists, and package targets from `config.yaml` (or `config.json`). If no external config file is present, the script seamlessly falls back to its comprehensive internal configuration.
+The script dynamically loads settings, protected blacklists, and package targets from `config.yaml` (or `config.json`). If no external config file is present, the script seamlessly falls back to its c[...]
 
 To customize target applications (e.g. adding custom apps to Doze or AOT compilation), edit `config.yaml`:
 ```yaml
@@ -960,9 +960,9 @@ java.lang.IllegalArgumentException: Unknown package: com.oplus.crashbox
 
 #### How the Suite Solves This
 `optimize_13r.py` implements a **3-tier safe package filter**:
-1. **Upfront Introspection**: Before running Phase 5, the script queries all installed packages via `pm list packages -u` and compares them against target lists. If a package is absent, it is safely skipped with an informative log message:
+1. **Upfront Introspection**: Before running Phase 5, the script queries all installed packages via `pm list packages -u` and compares them against target lists. If a package is absent, it is safely s[...]
    `[-] [SKIP] Package 'com.oplus.crashbox' is not installed on this device. Skipping safely.`
-2. **Runtime Exception Trap**: If any command produces stderr containing `"Unknown package"`, `"does not exist"`, or `"IllegalArgumentException"`, the script logs a warning and continues execution without terminating or crashing.
+2. **Runtime Exception Trap**: If any command produces stderr containing `"Unknown package"`, `"does not exist"`, or `"IllegalArgumentException"`, the script logs a warning and continues execution wit[...]
 3. **Blacklist Safeguard**: Every package target is verified against the 15-package "NEVER TOUCH" blacklist before execution.
 
 ---
@@ -970,7 +970,7 @@ java.lang.IllegalArgumentException: Unknown package: com.oplus.crashbox
 ### Issue 3: Persistent ADB Server Connection & Port 5037 Collisions
 
 #### Problem
-Running separate `subprocess.run(["adb", ...])` calls spawns a new process and connection handshake for every command. If another tool (O+Connect daemon, phone link, emulator) is bound to TCP port 5037, ADB kills and restarts the daemon repeatedly:
+Running separate `subprocess.run(["adb", ...])` calls spawns a new process and connection handshake for every command. If another tool (O+Connect daemon, phone link, emulator) is bound to TCP port 503[...]
 ```text
 adb server version (41) doesn't match this client (40); killing...
 * daemon started successfully
@@ -1028,24 +1028,24 @@ Executing commands chained with `&&` fails in standard Windows PowerShell with `
 ### Issue 6: Complete 100% Symmetrical Rollback / Undo Master Reference
 
 #### Problem
-The original guide had an incomplete `--undo` routine: it restored animation scales and re-enabled packages, but **completely omitted** battery settings, Doze whitelisting, and NFC/Wallet modifications, leaving devices in a fragmented state.
+The original guide had an incomplete `--undo` routine: it restored animation scales and re-enabled packages, but **completely omitted** battery settings, Doze whitelisting, and NFC/Wallet modification[...]
 
 #### Complete Bidirectional Command Matrix
 
 | Phase | Forward Command (Optimize) | Exact Undo Command (Rollback) | Stock State Description |
 | :--- | :--- | :--- | :--- |
 | **P1: Storage** | `sm fstrim`<br>`pm trim-caches 100G` | *(Self-healing; caches regenerate naturally)* | Standard filesystem state. |
-| **P2: Animations** | `settings put global window_animation_scale 0.5`<br>`settings put global transition_animation_scale 0.5`<br>`settings put global animator_duration_scale 0.5` | `settings put global window_animation_scale 1.0`<br>`settings put global transition_animation_scale 1.0`<br>`settings put global animator_duration_scale 1.0` | Factory stock default is `1.0` for all scales. |
-| **P3: Battery** | `settings put global wifi_scan_always_enabled 0`<br>`settings put global ble_scan_always_enabled 0`<br>`settings put global mobile_data_always_on 0`<br>`settings put global adaptive_battery_management_enabled 1` | `settings put global wifi_scan_always_enabled 1`<br>`settings put global ble_scan_always_enabled 1`<br>`settings put global mobile_data_always_on 1`<br>`settings put global adaptive_battery_management_enabled 1` | Background scans enabled (`1`); mobile data always on (`1`). |
+| **P2: Animations** | `settings put global window_animation_scale 0.5`<br>`settings put global transition_animation_scale 0.5`<br>`settings put global animator_duration_scale 0.5` | `settings put glo[...]
+| **P3: Battery** | `settings put global wifi_scan_always_enabled 0`<br>`settings put global ble_scan_always_enabled 0`<br>`settings put global mobile_data_always_on 0`<br>`settings put global adaptiv[...]
 | **P4: Doze** | `dumpsys deviceidle whitelist +<pkg>` | `dumpsys deviceidle whitelist -<pkg>` | Unwhitelisted; standard OS battery management. |
 | **P5: Telemetry** | `pm disable-user --user 0 <pkg>` | `pm enable --user 0 <pkg>` | Enabled and executing background services. |
-| **P6: AOT Compile** | `cmd package compile -m speed <pkg>`<br>`cmd package compile -m speed-profile -a` | `cmd package compile --reset <pkg>`<br>`cmd package compile --reset -a` | Standard baseline profile / install verification. |
-| **P7: Wallet/NFC** | `svc nfc enable`<br>`settings put secure nfc_on 1`<br>`settings put secure quick_access_wallet_enabled 1`<br>`settings put secure lockscreen_show_wallet 1`<br>`settings put secure nfc_payment_default_component com.google.android.gms/...` | `settings put secure quick_access_wallet_enabled 0`<br>`settings put secure lockscreen_show_wallet 0`<br>`settings put secure nfc_payment_default_component ""` | Quick access tile disabled (`0`); default unassigned. |
+| **P6: AOT Compile** | `cmd package compile -m speed <pkg>`<br>`cmd package compile -m speed-profile -a` | `cmd package compile --reset <pkg>`<br>`cmd package compile --reset -a` | Standard baseline [...]
+| **P7: Wallet/NFC** | `svc nfc enable`<br>`settings put secure nfc_on 1`<br>`settings put secure quick_access_wallet_enabled 1`<br>`settings put secure lockscreen_show_wallet 1`<br>`settings put secu[...]
 | **P8: GPU Driver** | `settings put global game_driver_all_apps 1` | `settings put global game_driver_all_apps 0` | System driver default (`0`). |
-| **P9: Scheduler** | `device_config put activity_manager max_phantom_processes 2147483647`<br>`settings put global settings_enable_monitor_phantom_procs false`<br>`device_config put activity_manager max_cached_processes 64`<br>`settings put global activity_manager_constants max_cached_processes=64`<br>`device_config set_sync_disabled_for_tests persistent` | `device_config put activity_manager max_phantom_processes 32`<br>`settings put global settings_enable_monitor_phantom_procs true`<br>`device_config delete activity_manager max_cached_processes`<br>`settings delete global activity_manager_constants`<br>`device_config set_sync_disabled_for_tests none` | Phantom limit 32; cached apps limit 32. |
-| **P10: Private DNS** | `settings put global private_dns_mode hostname`<br>`settings put global private_dns_specifier dns.adguard-dns.com`<br>`settings put global wifi_scan_throttle_enabled 1` | `settings put global private_dns_mode opportunistic`<br>`settings delete global private_dns_specifier`<br>`settings put global wifi_scan_throttle_enabled 0` | Opportunistic (automatic) DNS; throttling disabled. |
+| **P9: Scheduler** | `device_config put activity_manager max_phantom_processes 2147483647`<br>`settings put global settings_enable_monitor_phantom_procs false`<br>`device_config put activity_manager [...]
+| **P10: Private DNS** | `settings put global private_dns_mode hostname`<br>`settings put global private_dns_specifier dns.adguard-dns.com`<br>`settings put global wifi_scan_throttle_enabled 1` | `set[...]
 | **P11: Thermal** | `settings put system high_performance_mode 1` | `settings put system high_performance_mode 0` | Balanced mode (`0`). |
-| **P12: 120Hz Display** | `settings put secure oplus_customize_screen_refresh_rate 0`<br>`settings put system peak_refresh_rate 1`<br>`settings put system min_refresh_rate 1`<br>`settings put system user_refresh_rate 1` | `settings put secure oplus_customize_screen_refresh_rate 1`<br>`settings put system peak_refresh_rate 120.0`<br>`settings put system min_refresh_rate 60.0`<br>`settings delete system user_refresh_rate` | OEM adaptive refresh rate table active (`1`). |
+| **P12: 120Hz Display** | `settings put secure oplus_customize_screen_refresh_rate 0`<br>`settings put system peak_refresh_rate 1`<br>`settings put system min_refresh_rate 1`<br>`settings put system [...]
 
 To reverse all settings automatically using the Python tool:
 ```powershell
@@ -1059,7 +1059,7 @@ python optimize_13r.py --undo
 OnePlus ships the 13R with **RAM Expansion** (Virtual RAM) enabled by default, dedicating 4GB to 12GB of internal UFS 4.0 flash storage as swap memory.
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────────────────��[...]
 │                       WHY VIRTUAL RAM HURTS PERFORMANCE                     │
 │                                                                             │
 │  Physical LPDDR5X RAM:  ~68 GB/s Bandwidth  │ Sub-nanosecond Latency        │
@@ -1067,7 +1067,7 @@ OnePlus ships the 13R with **RAM Expansion** (Virtual RAM) enabled by default, d
 │                                                                             │
 │  Swapping RAM pages to flash causes I/O wait micro-stutters during heavy    │
 │  multitasking and gaming, while accelerating NAND flash write wear.         │
-└─────────────────────────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────────────��[...]
 ```
 
 ### Technical Truth
@@ -1123,13 +1123,13 @@ adb shell settings get global private_dns_specifier
 ## 10. License & Disclaimers
 
 ### License
-This project is open-source software licensed under the **MIT License**. You are free to inspect, modify, distribute, and utilize this guide and script for private or commercial use. See `LICENSE` for full terms.
+This project is open-source software licensed under the **MIT License**. You are free to inspect, modify, distribute, and utilize this guide and script for private or commercial use. See `LICENSE` for[...]
 
 ### Disclaimers
 - OnePlus, OxygenOS, ColorOS, SuperVOOC, and Hasselblad are trademarks of OnePlus Technology (Shenzhen) Co., Ltd. and OPPO Mobile Telecommunications Corp., Ltd.
 - Snapdragon and Adreno are registered trademarks of Qualcomm Incorporated.
 - Google, Android, Google Play, Google Wallet, and YouTube are trademarks of Google LLC.
-- This guide and suite are independent community engineering projects developed for technical power users. While mathematically and architecturally validated for zero data loss and 100% reversibility, the authors assume no liability for misuse, unintended side effects, or modifications outside the verified scope of this guide.
+- This guide and suite are independent community engineering projects developed for technical power users. While mathematically and architecturally validated for zero data loss and 100% reversibility,[...]
 
 ---
 
