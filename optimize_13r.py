@@ -286,19 +286,27 @@ EMBEDDED_DEFAULT_CONFIG = {
         },
         "phase_3": {
             "name": "Battery & Radio Optimizations",
-            "description": "Disables background Wi-Fi and Bluetooth Low Energy scanning when off, prevents cellular modem from staying awake while connected to Wi-Fi, and enables adaptive battery management.",
+            "description": "Disables background Wi-Fi and Bluetooth Low Energy scanning when off, prevents cellular modem from staying awake while connected to Wi-Fi, enables Smart 5G dynamic power modulation, and suppresses network scoring beacon probes.",
             "type": "settings_put",
             "commands": [
                 "settings put global wifi_scan_always_enabled 0",
                 "settings put global ble_scan_always_enabled 0",
                 "settings put global mobile_data_always_on 0",
                 "settings put global adaptive_battery_management_enabled 1",
+                "settings put system smart_5g_switch 1",
+                "settings put global smart_5g_switch 1",
+                "settings put global network_scoring_ui_enabled 0",
+                "settings put global wifi_network_recommendations_enabled 0",
             ],
             "undo_commands": [
                 "settings put global wifi_scan_always_enabled 1",
                 "settings put global ble_scan_always_enabled 1",
                 "settings put global mobile_data_always_on 1",
                 "settings put global adaptive_battery_management_enabled 1",
+                "settings put system smart_5g_switch 1",
+                "settings put global smart_5g_switch 1",
+                "settings put global network_scoring_ui_enabled 1",
+                "settings put global wifi_network_recommendations_enabled 1",
             ],
         },
         "phase_4": {
