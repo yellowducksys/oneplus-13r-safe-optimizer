@@ -268,7 +268,8 @@
         "mobile_data_always_on": "0",
         "adaptive_battery_management_enabled": "1",
         "network_scoring_ui_enabled": "0",
-        "wifi_network_recommendations_enabled": "0"
+        "wifi_network_recommendations_enabled": "0",
+        "cached_apps_freezer": "enabled"
       },
       "undo_settings": {
         "wifi_scan_always_enabled": "1",
@@ -276,7 +277,8 @@
         "mobile_data_always_on": "1",
         "adaptive_battery_management_enabled": "1",
         "network_scoring_ui_enabled": "1",
-        "wifi_network_recommendations_enabled": "1"
+        "wifi_network_recommendations_enabled": "1",
+        "cached_apps_freezer": "device_default"
       },
       "commands": [
         "settings put global wifi_scan_always_enabled 0",
@@ -286,7 +288,8 @@
         "settings put system smart_5g_switch 1",
         "settings put global smart_5g_switch 1",
         "settings put global network_scoring_ui_enabled 0",
-        "settings put global wifi_network_recommendations_enabled 0"
+        "settings put global wifi_network_recommendations_enabled 0",
+        "settings put global cached_apps_freezer enabled"
       ],
       "undo_commands": [
         "settings put global wifi_scan_always_enabled 1",
@@ -296,7 +299,8 @@
         "settings put system smart_5g_switch 1",
         "settings put global smart_5g_switch 1",
         "settings put global network_scoring_ui_enabled 1",
-        "settings put global wifi_network_recommendations_enabled 1"
+        "settings put global wifi_network_recommendations_enabled 1",
+        "settings put global cached_apps_freezer device_default"
       ]
     },
     "phase_4": {

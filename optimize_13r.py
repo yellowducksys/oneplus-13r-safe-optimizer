@@ -297,6 +297,7 @@ EMBEDDED_DEFAULT_CONFIG = {
                 "settings put global smart_5g_switch 1",
                 "settings put global network_scoring_ui_enabled 0",
                 "settings put global wifi_network_recommendations_enabled 0",
+                "settings put global cached_apps_freezer enabled",
             ],
             "undo_commands": [
                 "settings put global wifi_scan_always_enabled 1",
@@ -307,6 +308,7 @@ EMBEDDED_DEFAULT_CONFIG = {
                 "settings put global smart_5g_switch 1",
                 "settings put global network_scoring_ui_enabled 1",
                 "settings put global wifi_network_recommendations_enabled 1",
+                "settings put global cached_apps_freezer device_default",
             ],
         },
         "phase_4": {
