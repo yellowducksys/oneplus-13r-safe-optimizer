@@ -117,16 +117,16 @@ class TestConfigValidation(unittest.TestCase):
                 f"FATAL SAFETY VIOLATION: Protected package '{target}' is included in freeze targets!",
             )
 
-    def test_all_12_phases_defined_in_config(self):
-        """Verifies that all 12 optimization phases (1 to 7 + A to E/F) are declared."""
+    def test_all_13_phases_defined_in_config(self):
+        """Verifies that all 13 optimization phases (1 to 13) are declared."""
         config_data = load_test_config()
         if config_data is None:
             self.skipTest("config file not available yet")
 
         phases = config_data.get("phases", {})
-        self.assertTrue(len(phases) >= 12, f"Config must define at least 12 phases, found {len(phases)}.")
+        self.assertTrue(len(phases) >= 13, f"Config must define at least 13 phases, found {len(phases)}.")
 
-        for p_num in range(1, 13):
+        for p_num in range(1, 14):
             p_key = f"phase_{p_num}"
             self.assertIn(p_key, phases, f"Mandatory phase '{p_key}' missing from configuration phases mapping.")
             p_meta = phases[p_key]
@@ -136,13 +136,13 @@ class TestConfigValidation(unittest.TestCase):
             self.assertIn("undo_commands", p_meta, f"Phase {p_key} missing 'undo_commands' list.")
 
     def test_phases_undo_symmetry_in_config(self):
-        """Verifies that all state-modifying phases (phases 2 to 12) have non-empty undo_commands."""
+        """Verifies that all state-modifying phases (phases 2 to 13) have non-empty undo_commands."""
         config_data = load_test_config()
         if config_data is None:
             self.skipTest("config file not available yet")
 
         phases = config_data.get("phases", {})
-        for p_num in range(2, 13):
+        for p_num in range(2, 14):
             p_key = f"phase_{p_num}"
             p_meta = phases.get(p_key, {})
             undo_cmds = p_meta.get("undo_commands", [])

@@ -67,3 +67,8 @@ venv.bak/
 .DS_Store
 Thumbs.db
 tests/.mock_adb_*.json
+
+# Device state snapshots
+snapshots/*.json
+!snapshots/.gitkeep
+

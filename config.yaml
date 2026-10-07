@@ -1,10 +1,10 @@
 # ==============================================================================
 # OnePlus 13R (CPH2691) Safe Optimization Configuration
-# Target: OxygenOS 15 & 16 (Android 15 & 16) | Qualcomm Snapdragon 8 Gen 2
+# Target: OxygenOS 15 & 16 (Android 15 & 16) | Qualcomm Snapdragon 8 Gen 3 (SM8650-AB)
 # Security Boundary: 100% Rootless ADB (Shell UID 2000, SELinux Enforcing)
 # ==============================================================================
 
-version: "2.0.0"
+version: "3.0.0"
 guide_name: "OnePlus 13R (CPH2691) Safe Optimization Suite"
 
 # ------------------------------------------------------------------------------
@@ -245,15 +245,17 @@ phases:
   # Phase 1: Storage Cache Trim
   # ----------------------------------------------------------------------------
   phase_1:
-    name: "Storage Cache Trim"
-    description: "Executes UFS 4.0 storage TRIM via FITRIM ioctl to reclaim deleted flash blocks and purges temporary application cache up to 100GB."
+    name: "Storage Cache Trim & TRIM Maintenance"
+    description: "Executes UFS 4.0 storage TRIM via FITRIM ioctl to reclaim deleted flash blocks, purges temporary application cache up to 100GB, and removes forced daily fstrim (fstrim_mandatory_interval) to preserve NAND flash endurance."
     type: "storage_trim"
     enabled_by_default: true
     commands:
       - "sm fstrim"
       - "pm trim-caches 100G"
-    undo_commands: []
-    undo_note: "One-way maintenance operation (garbage collection). App caches rebuild automatically during normal application execution."
+      - "settings delete global fstrim_mandatory_interval"
+    undo_commands:
+      - "settings delete global fstrim_mandatory_interval"
+    undo_note: "One-way maintenance operation (garbage collection). App caches rebuild automatically during normal application execution. Daily fstrim interval setting is deleted."
 
   # ----------------------------------------------------------------------------
   # Phase 2: Window Animation Scales
@@ -484,7 +486,7 @@ phases:
       - "settings put global game_driver_all_apps 1"
     undo_commands:
       - "settings put global game_driver_all_apps 0"
-    safety_warning: "NEVER enable 'Disable HW Overlays' (SurfaceFlinger 1008). Bypassing Qualcomm's dedicated Hardware Composer ASIC forces Adreno 740 to composite 2D layers, causing massive battery drain and thermal throttling."
+    safety_warning: "NEVER enable 'Disable HW Overlays' (SurfaceFlinger 1008). Bypassing Qualcomm's dedicated Hardware Composer ASIC forces Adreno 750 to composite 2D layers, causing massive battery drain and thermal throttling."
 
   # ----------------------------------------------------------------------------
   # Phase 9: Process Scheduler & Phantom Limits
@@ -562,11 +564,101 @@ phases:
     enabled_by_default: true
     commands:
       - "settings put secure oplus_customize_screen_refresh_rate 0"
-      - "settings put system peak_refresh_rate 1"
-      - "settings put system min_refresh_rate 1"
-      - "settings put system user_refresh_rate 1"
+      - "settings put system peak_refresh_rate 120.0"
+      - "settings put system min_refresh_rate 1.0"
+      - "settings put system user_refresh_rate 120.0"
     undo_commands:
       - "settings put secure oplus_customize_screen_refresh_rate 1"
       - "settings put system peak_refresh_rate 120.0"
       - "settings put system min_refresh_rate 60.0"
       - "settings delete system user_refresh_rate"
+
+  # ----------------------------------------------------------------------------
+  # Phase 13: Gboard Clipboard & Keyboard Fix
+  # ----------------------------------------------------------------------------
+  phase_13:
+    name: "Gboard Clipboard & Keyboard Fix"
+    description: "Fixes Gboard clipboard issues by AOT-compiling for speed, force-stopping to clear stale state, and whitelisting from Doze to prevent clipboard history loss during deep sleep."
+    type: "gboard_fix"
+    enabled_by_default: true
+    packages:
+      - "com.google.android.inputmethod.latin"
+    commands:
+      - "cmd package compile -m speed com.google.android.inputmethod.latin"
+      - "am force-stop com.google.android.inputmethod.latin"
+      - "dumpsys deviceidle whitelist +com.google.android.inputmethod.latin"
+    undo_commands:
+      - "cmd package compile --reset com.google.android.inputmethod.latin"
+      - "dumpsys deviceidle whitelist -com.google.android.inputmethod.latin"
+
+# ------------------------------------------------------------------------------
+# DYNAMIC PERFORMANCE & BATTERY PRESETS (v3.0)
+# ------------------------------------------------------------------------------
+presets:
+  balanced:
+    name: "Balanced (Daily Driver)"
+    description: "Default daily driver (0.5x animations, MGLRU freezer, app standby bucketing, ADFR LTPO)."
+    phases:
+      - "phase_1"
+      - "phase_2"
+      - "phase_3"
+      - "phase_4"
+      - "phase_5"
+      - "phase_6"
+      - "phase_7"
+      - "phase_8"
+      - "phase_9"
+      - "phase_10"
+      - "phase_12"
+      - "phase_13"
+    extra_commands:
+      - "settings put system high_performance_mode 0"
+  gaming:
+    name: "Gaming (Adreno 750 Turbo)"
+    description: "Adreno 750 game driver, High Performance Mode ON, sustained performance hint, 120Hz locked."
+    phases:
+      - "phase_2"
+      - "phase_8"
+      - "phase_9"
+      - "phase_11"
+      - "phase_12"
+    extra_commands:
+      - "settings put system min_refresh_rate 120.0"
+      - "settings put system user_refresh_rate 120.0"
+      - "settings put global wifi_scan_throttle_enabled 0"
+  battery:
+    name: "Battery (Endurance Saver)"
+    description: "Wi-Fi/BLE throttling, 60Hz display cap, aggressive Doze timeout, HPM off."
+    phases:
+      - "phase_2"
+      - "phase_3"
+      - "phase_4"
+      - "phase_5"
+      - "phase_10"
+    extra_commands:
+      - "settings put system high_performance_mode 0"
+      - "settings put global game_driver_all_apps 0"
+      - "settings put system peak_refresh_rate 60.0"
+      - "settings put system min_refresh_rate 60.0"
+      - "settings put system user_refresh_rate 60.0"
+  gcam:
+    name: "GCam (50MP Quad-Bayer Pro)"
+    description: "AOT compiled camera pipelines, 50MP Quad-Bayer profile deployment, low-latency Stagefright decoding."
+    phases:
+      - "phase_2"
+      - "phase_6"
+      - "phase_9"
+      - "phase_11"
+      - "phase_12"
+      - "phase_13"
+    extra_commands:
+      - "cmd package compile -m speed com.google.android.GoogleCamera"
+      - "cmd package compile -m speed com.google.android.apps.cameralite"
+      - "settings put global stagefright_low_latency 1"
+      - "settings put system high_performance_mode 1"
+    push_files:
+      - src: "OnePlus13R_50MP_Master.xml"
+        dest: "/sdcard/Download/OnePlus13R_50MP_Master.xml"
+      - src: "OnePlus13R_50MP_Master.xml"
+        dest: "/sdcard/Gcam/Configs8/OnePlus13R_50MP_Master.xml"
+

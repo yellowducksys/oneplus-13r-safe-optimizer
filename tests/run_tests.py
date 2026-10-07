@@ -46,6 +46,7 @@ TIERS = {
     5: ("Tier 5: 100% Symmetric Undo", "tests.test_undo_symmetry"),
     6: ("Tier 6: Missing Package Resilience", "tests.test_missing_packages"),
     7: ("Tier 7: Mock ADB & Auth State Machine", "tests.test_mock_adb"),
+    8: ("Tier 8: Optimizer 3.0 Control Deck", "tests.test_v3_features"),
 }
 
 
@@ -138,7 +139,7 @@ def print_summary_table(results: List[TierTestResult]):
         print(f"Tier {r.tier_num:<1} | {name_trunc:<38} | {r.total:<6} | {r.passed:<5} | {r.failed + r.errors:<5} | {status}")
 
     print("-" * 80)
-    summary_line = f"TOTAL  | {'All 7 Tiers Combined':<38} | {total_tests:<6} | {total_passed:<5} | {total_failed:<5} | "
+    summary_line = f"TOTAL  | {'All 8 Tiers Combined':<38} | {total_tests:<6} | {total_passed:<5} | {total_failed:<5} | "
     summary_line += "[PASS] ALL PASSED" if all_passed else "[WARN] ACTION NEEDED"
     print(summary_line)
     print("=" * 80)
@@ -174,7 +175,7 @@ def print_summary_table(results: List[TierTestResult]):
 
 def main():
     parser = argparse.ArgumentParser(description="OnePlus 13R Optimizer Master Test Runner")
-    parser.add_argument("--tier", type=int, choices=range(1, 8), help="Execute a specific tier (1 to 7)")
+    parser.add_argument("--tier", type=int, choices=range(1, 9), help="Execute a specific tier (1 to 8)")
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose per-test reporting")
     args = parser.parse_args()
 

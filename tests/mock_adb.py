@@ -248,6 +248,16 @@ def handle_adb_command(args: List[str], state: MockADBState) -> int:
             print(f"{serial}	{curr_state}")
         return 0
 
+    if subcmd == "connect":
+        target = args[1] if len(args) > 1 else "127.0.0.1:5555"
+        print(f"connected to {target}")
+        return 0
+
+    if subcmd == "pair":
+        target = args[1] if len(args) > 1 else "127.0.0.1:5555"
+        print(f"Successfully paired to {target}")
+        return 0
+
     # Handle serial option: adb -s <serial> ...
     cmd_args = list(args)
     if cmd_args[0] == "-s":
@@ -258,6 +268,12 @@ def handle_adb_command(args: List[str], state: MockADBState) -> int:
             return 1
 
     if not cmd_args:
+        return 0
+
+    if cmd_args[0] == "push":
+        src = cmd_args[1] if len(cmd_args) > 1 else ""
+        dst = cmd_args[2] if len(cmd_args) > 2 else ""
+        print(f"{src}: 1 file pushed, 0 skipped.")
         return 0
 
     # Shell subcommands
@@ -307,6 +323,12 @@ def execute_single_shell_command(tokens: List[str], state: MockADBState) -> int:
         elif prop == "ro.build.display.id":
             print(state.data.get("build_id", "CPH2691_16.0.10.500(EX01)"))
             return 0
+        elif prop == "ro.soc.model":
+            print(state.data.get("soc_model", "SM8650"))
+            return 0
+        elif prop == "ro.board.platform":
+            print("pineapple")
+            return 0
         print("")
         return 0
 
@@ -327,6 +349,11 @@ def execute_single_shell_command(tokens: List[str], state: MockADBState) -> int:
 
         if action == "list" and len(tokens) > 2 and tokens[2] == "packages":
             # List packages
+            if "-d" in tokens:
+                disabled = state.data.get("disabled_packages", [])
+                for pkg in sorted(disabled):
+                    print(f"package:{pkg}")
+                return 0
             installed = state.data.get("installed_packages", [])
             for pkg in sorted(installed):
                 print(f"package:{pkg}")
@@ -422,6 +449,23 @@ def execute_single_shell_command(tokens: List[str], state: MockADBState) -> int:
                 for pkg in state.data.get("doze_whitelist", []):
                     print(f"system-on-data,{pkg},10000")
                 return 0
+        elif service == "battery":
+            print("Current Battery Service state:")
+            print("  AC powered: false")
+            print("  USB powered: true")
+            print("  Wireless powered: false")
+            print("  level: 82")
+            print("  scale: 100")
+            print("  voltage: 4120")
+            print("  temperature: 314")
+            print("  technology: Li-ion")
+            return 0
+        elif service == "meminfo":
+            print("Total RAM: 15,624,380K (status normal)")
+            print(" Free RAM: 8,124,320K ( 7,200,060K cached pss + 924,260K cached kernel)")
+            print(" Used RAM: 7,499,060K ( 6,100,000K used pss + 1,399,060K kernel)")
+            print(" Lost RAM: 1,000K")
+            return 0
         return 0
 
     # 6. cmd
@@ -466,7 +510,11 @@ def execute_single_shell_command(tokens: List[str], state: MockADBState) -> int:
         key = tokens[3] if len(tokens) > 3 else ""
         cfg_ns = state.data.setdefault("device_config", {}).setdefault(ns, {})
 
-        if op == "put":
+        if op == "get":
+            val = cfg_ns.get(key, "null")
+            print(val)
+            return 0
+        elif op == "put":
             val = tokens[4] if len(tokens) > 4 else ""
             cfg_ns[key] = val
             state.save()
