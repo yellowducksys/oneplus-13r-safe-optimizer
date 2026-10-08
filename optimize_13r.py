@@ -7,8 +7,8 @@ Target: OxygenOS 15 & 16 (Android 15 & 16) | Qualcomm Snapdragon 8 Gen 3 (SM8650
 Security Boundary: 100% Rootless ADB (Shell UID 2000, SELinux Enforcing)
 ================================================================================
 
-A production-grade, rootless Android optimization CLI tool and interactive
-Control Deck designed specifically for the OnePlus 13R (CPH2691 / CPH2691IN / OP5D3BL1).
+A clean, safe, and rootless ADB optimization script and interactive
+Control Deck for the OnePlus 13R (CPH2691 / CPH2691IN / OP5D3BL1).
 
 Key Capabilities:
   - Interactive Terminal TUI Control Deck (zero-dependency ANSI / VT100 dashboard)

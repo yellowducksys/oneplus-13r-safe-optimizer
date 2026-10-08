@@ -9,14 +9,14 @@
 [![Integrity: Widevine L1 & Banking Safe](https://img.shields.io/badge/Safety-Widevine%20L1%20%26%20Banking%20Safe-4285F4.svg?style=for-the-badge&logo=googlepay)](https://support.google.com/googlepay)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg?style=for-the-badge)](LICENSE)
 
-> **Enterprise-grade, mathematically verified, rootless Android optimization suite specifically engineered for the OnePlus 13R (`CPH2691` / `CPH2691IN`).**  
-> *Zero Bootloader Unlock • Zero Root Privileges • 100% Symmetrical Rollback • Zero Widevine L1 Loss • Banking & UPI Apps Untouched*
+> A clean, safe ADB optimization script and manual guide for the OnePlus 13R (`CPH2691` / `CPH2691IN`).  
+> *No root needed. Locked bootloader safe. 100% reversible. Keeps banking apps, UPI, Widevine L1, and OTAs intact.*
 
 ---
 
 ## Table of Contents
 
-1. [Architectural Overview & Boundary Analysis](#1-architectural-overview--boundary-analysis)
+1. [Overview & Scope](#1-overview--scope)
    - [What This Does vs. What This Doesn't Do](#what-this-does-vs-what-this-doesnt-do)
    - [Rootless Security Boundary](#rootless-security-boundary)
 2. [Pre-Flight Setup & Device Preparation](#2-pre-flight-setup--device-preparation)
@@ -44,7 +44,7 @@
    - [Phase 11: Thermal & OxygenOS High Performance Mode](#phase-11-thermal--oxygenos-high-performance-mode)
    - [Phase 12: Display True 120Hz Refresh Rate Unlock](#phase-12-display-true-120hz-refresh-rate-unlock)
    - [Phase 13: Gboard Clipboard & Keyboard Fix](#phase-13-gboard-clipboard--keyboard-fix)
-6. [OnePlus 13R Optimizer 3.0 Automation Suite & Interactive Control Deck](#6-oneplus-13r-optimizer-30-automation-suite--interactive-control-deck)
+6. [Automation Script (`optimize_13r.py`)](#6-automation-script-optimize_13rpy)
    - [Interactive Terminal Control Deck (TUI)](#interactive-terminal-control-deck-tui)
    - [Dynamic Performance & Battery Presets (`--preset`)](#dynamic-performance--battery-presets---preset)
    - [Smart State Snapshot Engine (`--snapshot`, `--restore`)](#smart-state-snapshot-engine---snapshot---restore)
@@ -67,18 +67,11 @@
 
 ---
 
-## 1. Architectural Overview & Boundary Analysis
+## 1. Overview & Scope
 
-The **OnePlus 13R** (internal model `CPH2691`, Indian regional variant `CPH2691IN`, board identifier `OP5D3BL1`) is driven by the **Qualcomm Snapdragon 8 Gen 3 (SM8650-AB)** mobile platform (1x 3.3GHz Cortex-X4 prime core, 5x 3.2GHz performance cores [3x A720 + 2x A720], 2x 2.3GHz Cortex-A520 efficiency cores), paired with the **Adreno 750 GPU**, **12GB or 16GB of ultra-fast LPDDR5X RAM**, and **UFS 4.0 flash storage**. It features a 1.5K 120Hz LTPO 4.0 AMOLED display and dual-cell 100W SuperVOOC charging.
+This repository provides safe, rootless ADB tweaks for the OnePlus 13R (`CPH2691` / `CPH2691IN`) running OxygenOS 15 or 16. It fixes 60Hz display throttling in apps like Chrome and YouTube, trims background telemetry, and reduces idle battery drain—without requiring root or breaking banking and streaming apps.
 
-While OxygenOS 15 and 16 (built on Android 15 & 16 and sharing the unified ColorOS codebase) deliver top-tier hardware potential, stock consumer firmware suffers from:
-- Aggressive OEM background process termination and artificial cached process bounds.
-- Background telemetry uploaders, marketing beacons, and dormant Facebook daemons.
-- Jarring display refresh rate throttling that caps Chrome, YouTube, and Maps at 60Hz despite selecting 120Hz in Settings.
-- Fragmented flash blocks and uncompiled ART bytecode causing cold launch frame drops.
-- Persistent modem scanning and cellular keep-alive polling on Wi-Fi connections.
-
-This project delivers a **publication-quality, rootless optimization guide and automated Python CLI suite** designed specifically to resolve these bottlenecks without compromising device integrity.
+You can run the commands manually or use `optimize_13r.py` to automate them.
 
 ### What This Does vs. What This Doesn't Do
 
@@ -825,27 +818,13 @@ adb shell dumpsys deviceidle whitelist -com.google.android.inputmethod.latin
 
 ---
 
-## 6. OnePlus 13R Optimizer 3.0 Automation Suite & Interactive Control Deck
+## 6. Automation Script (`optimize_13r.py`)
 
-`optimize_13r.py` has been evolved into **OnePlus 13R Optimizer 3.0**: an enterprise-grade, zero-dependency Terminal Control Deck (TUI) and dynamic state orchestration engine. It automates all 13 phases, captures exact state snapshots, audits and remedies post-OTA setting drift, provides 4 specialized hardware presets, and supports untethered Wireless ADB over Wi-Fi.
+If you prefer not to run commands manually, `optimize_13r.py` automates all phases with zero third-party dependencies (pure standard library). It works on Windows, macOS, Linux, and Android via Termux.
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                 OPTIMIZER 3.0 CONTROL DECK ARCHITECTURE                     │
-│                                                                             │
-│  [Interactive TUI / CLI] ──► [ADB Auto-Discovery / Wireless] ──► [State]    │
-│            │                                                       │        │
-│            ▼                                                       ▼        │
-│  [Dynamic Preset Engine] ◄── [Live Telemetry: SoC / Temp] ◄── [Snapshot DB] │
-│            │                                                       │        │
-│            ▼                                                       ▼        │
-│  [13-Phase Engine] ──────► [OTA Drift Auditor] ─────────► [Logging / Audit] │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+### Interactive Terminal Menu (TUI)
 
-### Interactive Terminal Control Deck (TUI)
-
-Launching `optimize_13r.py` with no arguments in any interactive terminal (Windows PowerShell 5.1/7, CMD, macOS/Linux, or Android **Termux**) boots the **Interactive Control Deck**:
+Launching `optimize_13r.py` with no arguments opens the interactive menu:
 ```powershell
 python optimize_13r.py
 ```
@@ -1332,7 +1311,8 @@ This project is open-source software licensed under the **MIT License**. You are
 - OnePlus, OxygenOS, ColorOS, SuperVOOC, and Hasselblad are trademarks of OnePlus Technology (Shenzhen) Co., Ltd. and OPPO Mobile Telecommunications Corp., Ltd.
 - Snapdragon and Adreno are registered trademarks of Qualcomm Incorporated.
 - Google, Android, Google Play, Google Wallet, and YouTube are trademarks of Google LLC.
-- This guide and suite are independent community engineering projects developed for technical power users. While mathematically and architecturally validated for zero data loss and 100% reversibility, the authors assume no liability for misuse, unintended side effects, or modifications outside the verified scope of this guide.
+- This is an independent open-source project by and for OnePlus 13R users. It is not affiliated with or endorsed by OnePlus or OPPO.
+- Everything here runs through standard userland ADB commands (`UID 2000`) and has been tested on real devices. Nothing touches system partitions, trips Knox/fuse equivalents, or breaks banking apps. That said, you use these commands at your own discretion.
 
 ---
 
